@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_mcp_audit_log_list" model="ir.ui.view">
+        <field name="name">mcp.audit.log.list</field>
+        <field name="model">mcp.audit.log</field>
+        <field name="arch" type="xml">
+            <list string="MCP Audit Log" create="false" delete="false"
+                  decoration-danger="status == 'error'"
+                  decoration-warning="status == 'denied'">
+                <field name="create_date" string="Timestamp"/>
+                <field name="api_key_id"/>
+                <field name="user_id"/>
+                <field name="tool_name"/>
+                <field name="model_name"/>
+                <field name="status"/>
+                <field name="duration_ms"/>
+                <field name="ip_address"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_mcp_audit_log_form" model="ir.ui.view">
+        <field name="name">mcp.audit.log.form</field>
+        <field name="model">mcp.audit.log</field>
+        <field name="arch" type="xml">
+            <form string="MCP Audit Log Entry">
+                <sheet>
+                    <group>
+                        <group string="Request">
+                            <field name="create_date" string="Timestamp"/>
+                            <field name="api_key_id"/>
+                            <field name="user_id"/>
+                            <field name="tool_name"/>
+                            <field name="model_name"/>
+                            <field name="method"/>
+                            <field name="status"/>
+                            <field name="duration_ms"/>
+                            <field name="ip_address"/>
+                        </group>
+                        <group string="Payload">
+                            <field name="request_data" widget="code"/>
+                            <field name="response_summary" widget="code"/>
+                            <field name="error_message"
+                                   invisible="status == 'success'"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_server_mcp_audit_purge" model="ir.actions.server">
+        <field name="name">Purge Old Logs</field>
+        <field name="model_id" ref="model_mcp_audit_log"/>
+        <field name="binding_model_id" ref="model_mcp_audit_log"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">model._cron_purge_old_logs()</field>
+    </record>
+
+    <record id="action_mcp_audit_log" model="ir.actions.act_window">
+        <field name="name">MCP Audit Log</field>
+        <field name="res_model">mcp.audit.log</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_mcp_audit_log" name="Audit Log" parent="ucs_mcp.menu_mcp_root"
+              action="action_mcp_audit_log" sequence="20"
+              groups="ucs_mcp.group_mcp_admin"/>
+
+    <menuitem id="menu_mcp_configuration" name="Configuration" parent="menu_mcp_root"
+              sequence="99" groups="ucs_mcp.group_mcp_admin"/>
+
+</odoo>

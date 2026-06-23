@@ -1,0 +1,796 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_mcp_connect" name="MCP Connect Portal">
+        <t t-call="web.layout">
+            <t t-set="head">
+                <title>Connect to Odoo MCP Server</title>
+                <style>
+                    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+                    body { font-family: system-ui, -apple-system, sans-serif; background: #F3F4F6; color: #111827; }
+                    .mcp-wrap { max-width: 720px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+                    .mcp-header { background: #1a0a3c; color: #fff; padding: 2.5rem 2rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center; }
+                    .mcp-header h1 { font-size: 1.75rem; font-weight: 800; color: #c4b5fd; margin-bottom: .4rem; }
+                    .mcp-header p { color: #9ca3af; font-size: .95rem; }
+                    .mcp-badge { display: inline-block; background: rgba(167,139,250,.2); border: 1px solid rgba(167,139,250,.4); color: #c4b5fd; padding: .2rem .75rem; border-radius: 20px; font-size: .75rem; font-weight: 600; margin-top: .75rem; }
+                    .mcp-card { background: #fff; border-radius: 10px; box-shadow: 0 1px 6px rgba(0,0,0,.07); padding: 1.75rem; margin-bottom: 1.25rem; }
+                    .mcp-card h2 { font-size: 1.05rem; font-weight: 700; margin-bottom: 1.1rem; color: #1f2937; display: flex; align-items: center; gap: .5rem; }
+                    .steps-row { display: flex; gap: 1rem; margin: 1.25rem 0; flex-wrap: wrap; }
+                    .step-box { flex: 1; min-width: 140px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem; text-align: center; }
+                    .step-box .num { width: 32px; height: 32px; border-radius: 50%; background: #6c47ff; color: #fff; font-weight: 700; font-size: .9rem; display: flex; align-items: center; justify-content: center; margin: 0 auto .5rem; }
+                    .step-box p { font-size: .83rem; color: #6b7280; margin-top: .3rem; }
+                    .step-box strong { font-size: .9rem; color: #111827; }
+                    .btn-primary { display: inline-block; background: #6c47ff; color: #fff; padding: .7rem 2rem; border-radius: 8px; font-weight: 600; font-size: .95rem; text-decoration: none; border: none; cursor: pointer; transition: background .15s; }
+                    .btn-primary:hover { background: #5a36e8; color: #fff; }
+                    .btn-danger { display: inline-block; background: #fff; color: #dc2626; padding: .35rem .9rem; border-radius: 6px; font-size: .8rem; font-weight: 600; border: 1px solid #fca5a5; cursor: pointer; transition: all .15s; }
+                    .btn-danger:hover { background: #fee2e2; }
+                    .btn-secondary { display: inline-block; background: #f3f4f6; color: #374151; padding: .35rem .9rem; border-radius: 6px; font-size: .8rem; font-weight: 600; border: 1px solid #e5e7eb; cursor: pointer; transition: all .15s; text-decoration: none; }
+                    .btn-secondary:hover { background: #e5e7eb; color: #111827; }
+                    .btn-rotate { display: inline-block; background: #fff; color: #6c47ff; padding: .35rem .9rem; border-radius: 6px; font-size: .8rem; font-weight: 600; border: 1px solid #c4b5fd; cursor: pointer; transition: all .15s; }
+                    .btn-rotate:hover { background: #f5f3ff; }
+                    .text-center { text-align: center; margin-top: 1rem; }
+                    .form-group { margin-bottom: 1.1rem; }
+                    .form-group label { display: block; font-size: .85rem; font-weight: 600; color: #374151; margin-bottom: .4rem; }
+                    .form-group input[type=text] { width: 100%; padding: .6rem .9rem; border: 1.5px solid #d1d5db; border-radius: 7px; font-size: .95rem; outline: none; transition: border .15s; }
+                    .form-group input[type=text]:focus { border-color: #6c47ff; }
+                    .form-group select { width: 100%; padding: .6rem .9rem; border: 1.5px solid #d1d5db; border-radius: 7px; font-size: .9rem; background: #fff; }
+                    .perm-grid { display: flex; flex-wrap: wrap; gap: .6rem; }
+                    .perm-label { display: flex; align-items: center; gap: .4rem; background: #f3f4f6; padding: .4rem .8rem; border-radius: 6px; font-size: .85rem; cursor: pointer; border: 1.5px solid transparent; transition: all .15s; }
+                    .perm-label:hover { border-color: #6c47ff; background: #f5f3ff; }
+                    .perm-label input { accent-color: #6c47ff; }
+                    .perm-label.locked { opacity: .6; cursor: not-allowed; }
+                    /* Keys list */
+                    .key-row { padding: 1rem 0; border-bottom: 1px solid #f3f4f6; }
+                    .key-row:last-child { border-bottom: none; }
+                    .key-top { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+                    .key-meta strong { font-size: .9rem; color: #111827; }
+                    .key-meta span { font-size: .75rem; color: #9ca3af; display: block; margin-top: .15rem; }
+                    .key-prefix { font-family: monospace; font-size: .78rem; background: #f3f4f6; padding: .1rem .5rem; border-radius: 4px; color: #6c47ff; }
+                    .key-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+                    /* Collapsible config panel */
+                    .key-config { display: none; margin-top: 1rem; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem; }
+                    .key-config.open { display: block; }
+                    .config-tabs { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .75rem; }
+                    .config-tab { padding: .25rem .75rem; border-radius: 20px; font-size: .78rem; font-weight: 600; background: #fff; border: 1.5px solid #e5e7eb; color: #374151; cursor: pointer; transition: all .15s; }
+                    .config-tab.active { background: #6c47ff; border-color: #6c47ff; color: #fff; }
+                    .config-panel { display: none; }
+                    .config-panel.active { display: block; }
+                    .code-mini { position: relative; }
+                    .code-mini pre { background: #1e1e2e; color: #cdd6f4; border-radius: 7px; padding: .75rem 2.5rem .75rem .75rem; font-family: monospace; font-size: .75rem; line-height: 1.5; overflow-x: auto; white-space: pre; margin: 0; }
+                    .copy-btn-sm { position: absolute; top: .4rem; right: .4rem; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); color: #cdd6f4; padding: .2rem .55rem; border-radius: 4px; font-size: .7rem; cursor: pointer; transition: all .15s; white-space: nowrap; }
+                    .copy-btn-sm:hover { background: rgba(255,255,255,.2); }
+                    .copy-btn-sm.copied { background: #059669; border-color: #059669; color: #fff; }
+                    .lost-key-note { font-size: .75rem; color: #9ca3af; margin-top: .5rem; }
+                    .lost-key-note a { color: #6c47ff; cursor: pointer; text-decoration: underline; }
+                    /* User bar */
+                    .user-bar { display: flex; align-items: center; justify-content: space-between; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: .65rem 1rem; margin-bottom: 1.25rem; font-size: .875rem; color: #065f46; }
+                    .user-bar a { color: #065f46; font-size: .8rem; }
+                    .tool-pills { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; }
+                    .tool-pill { background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 20px; padding: .25rem .8rem; font-size: .8rem; color: #374151; font-weight: 500; }
+                    .alert-error { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: .7rem 1rem; border-radius: 7px; font-size: .875rem; margin-bottom: 1rem; }
+                    .empty-msg { text-align: center; color: #9ca3af; font-size: .875rem; padding: 1rem 0; }
+                    .perm-pills { display: flex; gap: .3rem; flex-wrap: wrap; margin-top: .3rem; }
+                    .perm-pill { font-size: .68rem; padding: .1rem .45rem; border-radius: 10px; font-weight: 600; background: #ede9fe; color: #5b21b6; }
+                </style>
+            </t>
+
+            <div class="mcp-wrap">
+                <div class="mcp-header">
+                    <h1>Odoo MCP Server</h1>
+                    <p>Connect Claude Code, Cursor, Continue.dev, or Gemini CLI to your Odoo</p>
+                    <div class="mcp-badge"><t t-esc="server_name"/> &#160;v<t t-esc="server_version"/></div>
+                </div>
+
+                <t t-if="error">
+                    <div class="alert-error"><t t-esc="error"/></div>
+                </t>
+
+                <!-- PUBLIC -->
+                <t t-if="is_public">
+                    <div class="mcp-card">
+                        <h2>&#128274;&#160; Connect your AI in 3 steps</h2>
+                        <div class="steps-row">
+                            <div class="step-box"><div class="num">1</div><strong>Sign In</strong><p>Use your Odoo account</p></div>
+                            <div class="step-box"><div class="num">2</div><strong>Create Key</strong><p>Name it, set permissions</p></div>
+                            <div class="step-box"><div class="num">3</div><strong>Copy &amp; Paste</strong><p>Ready config for your tool</p></div>
+                        </div>
+                        <div class="text-center" style="margin-top:1.5rem">
+                            <a class="btn-primary" t-attf-href="/web/login?redirect=/mcp/connect">Sign In to Get Started &#8594;</a>
+                        </div>
+                    </div>
+                    <div class="mcp-card">
+                        <h2>&#128279;&#160; Works with</h2>
+                        <div class="tool-pills">
+                            <span class="tool-pill">&#129302; Claude Code</span>
+                            <span class="tool-pill">&#129302; Claude Desktop</span>
+                            <span class="tool-pill">&#9654; Cursor IDE</span>
+                            <span class="tool-pill">&#128296; Continue.dev</span>
+                            <span class="tool-pill">&#129418; Gemini CLI</span>
+                            <span class="tool-pill">&#129302; OpenAI (bridge)</span>
+                            <span class="tool-pill">&#9881; Any MCP Client</span>
+                        </div>
+                    </div>
+
+                    <div class="mcp-card" style="border-left:4px solid #f59e0b;background:#fffbeb">
+                        <h2 style="color:#92400e">&#9888;&#160; Which AI clients support MCP?</h2>
+                        <p style="font-size:.875rem;color:#78350f;margin-bottom:.75rem">
+                            MCP requires a <strong>local client app</strong> on your computer. Browser-only chat UIs cannot connect directly — they don't have access to your network or local ports.
+                        </p>
+                        <table style="width:100%;font-size:.82rem;border-collapse:collapse">
+                            <thead>
+                                <tr style="background:#fef3c7">
+                                    <th style="text-align:left;padding:.4rem .6rem;border:1px solid #fcd34d">AI Tool</th>
+                                    <th style="text-align:center;padding:.4rem .6rem;border:1px solid #fcd34d">MCP</th>
+                                    <th style="text-align:left;padding:.4rem .6rem;border:1px solid #fcd34d">Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td style="padding:.35rem .6rem;border:1px solid #fcd34d">Claude Code (CLI)</td><td style="text-align:center;color:#16a34a;border:1px solid #fcd34d">&#10003;</td><td style="padding:.35rem .6rem;border:1px solid #fcd34d">Run terminal command from your config</td></tr>
+                                <tr style="background:#fef9c3"><td style="padding:.35rem .6rem;border:1px solid #fcd34d">Claude Desktop (app)</td><td style="text-align:center;color:#16a34a;border:1px solid #fcd34d">&#10003;</td><td style="padding:.35rem .6rem;border:1px solid #fcd34d">Edit <code>claude_desktop_config.json</code></td></tr>
+                                <tr><td style="padding:.35rem .6rem;border:1px solid #fcd34d">Cursor IDE (app)</td><td style="text-align:center;color:#16a34a;border:1px solid #fcd34d">&#10003;</td><td style="padding:.35rem .6rem;border:1px solid #fcd34d">Edit <code>.cursor/mcp.json</code></td></tr>
+                                <tr style="background:#fef9c3"><td style="padding:.35rem .6rem;border:1px solid #fcd34d">Gemini CLI</td><td style="text-align:center;color:#16a34a;border:1px solid #fcd34d">&#10003;</td><td style="padding:.35rem .6rem;border:1px solid #fcd34d">Edit <code>~/.gemini/settings.json</code></td></tr>
+                                <tr><td style="padding:.35rem .6rem;border:1px solid #fcd34d">Continue.dev (VS Code)</td><td style="text-align:center;color:#16a34a;border:1px solid #fcd34d">&#10003;</td><td style="padding:.35rem .6rem;border:1px solid #fcd34d">Edit <code>~/.continue/config.json</code></td></tr>
+                                <tr style="background:#fef9c3"><td style="padding:.35rem .6rem;border:1px solid #fcd34d">ChatGPT.com / Desktop</td><td style="text-align:center;color:#16a34a;border:1px solid #fcd34d">&#10003;</td><td style="padding:.35rem .6rem;border:1px solid #fcd34d">Native MCP connector — paste URL directly. Requires public URL (ngrok / cloud).</td></tr>
+                                <tr><td style="padding:.35rem .6rem;border:1px solid #fcd34d">OpenAI API (Python)</td><td style="text-align:center;color:#ca8a04;border:1px solid #fcd34d">&#126;</td><td style="padding:.35rem .6rem;border:1px solid #fcd34d">Python bridge — works with localhost too</td></tr>
+                                <tr><td style="padding:.35rem .6rem;border:1px solid #fcd34d">Gemini.google.com</td><td style="text-align:center;color:#dc2626;border:1px solid #fcd34d">&#10007;</td><td style="padding:.35rem .6rem;border:1px solid #fcd34d">Browser — sandboxed, no MCP</td></tr>
+                                <tr style="background:#fef9c3"><td style="padding:.35rem .6rem;border:1px solid #fcd34d">Claude.ai (browser)</td><td style="text-align:center;color:#dc2626;border:1px solid #fcd34d">&#10007;</td><td style="padding:.35rem .6rem;border:1px solid #fcd34d">Browser — sandboxed, no MCP</td></tr>
+                                <tr><td style="padding:.35rem .6rem;border:1px solid #fcd34d">Perplexity</td><td style="text-align:center;color:#dc2626;border:1px solid #fcd34d">&#10007;</td><td style="padding:.35rem .6rem;border:1px solid #fcd34d">No MCP support</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+
+                <!-- AUTHENTICATED -->
+                <t t-if="not is_public">
+                    <div class="user-bar">
+                        <span>&#10003;&#160; Signed in as <strong><t t-esc="current_user.name"/></strong></span>
+                        <a href="/web/login?redirect=/mcp/connect">Switch account</a>
+                    </div>
+
+                    <!-- Create Key Form -->
+                    <div class="mcp-card">
+                        <h2>&#43;&#160; Create New API Key</h2>
+                        <form method="POST" action="/mcp/connect/create">
+                            <input type="hidden" name="csrf_token" t-att-value="csrf_token"/>
+                            <div class="form-group">
+                                <label for="key_name">Key Name <span style="color:#dc2626">*</span></label>
+                                <input type="text" id="key_name" name="key_name" placeholder="e.g. My Claude Code Key" required="1" autocomplete="off"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="mcp_server_name">MCP Server Name <span style="color:#dc2626">*</span></label>
+                                <input type="text" id="mcp_server_name" name="mcp_server_name"
+                                       placeholder="e.g. odoo-acme  (no spaces, used in AI client config)"
+                                       required="1" autocomplete="off" pattern="[^\s]+"
+                                       title="No spaces allowed"/>
+                                <small style="color:#6b7280">Short unique slug — shown in your AI client as the server name.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="expiry_days">Expires After</label>
+                                <select id="expiry_days" name="expiry_days">
+                                    <option value="">No expiry</option>
+                                    <option value="30">30 days</option>
+                                    <option value="90">90 days</option>
+                                    <option value="365">1 year</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Permissions</label>
+                                <div class="perm-grid">
+                                    <label class="perm-label locked"><input type="checkbox" checked="1" disabled="1"/> Read</label>
+                                    <label class="perm-label"><input type="checkbox" name="perm_write" value="1"/> Write</label>
+                                    <label class="perm-label"><input type="checkbox" name="perm_create" value="1"/> Create</label>
+                                    <label class="perm-label"><input type="checkbox" name="perm_delete" value="1"/> Delete</label>
+                                    <label class="perm-label"><input type="checkbox" name="perm_execute" value="1"/> Execute</label>
+                                </div>
+                            </div>
+                            <div style="text-align:right;margin-top:1.25rem">
+                                <button type="submit" class="btn-primary">Generate Key &#8594;</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Keys List -->
+                    <div class="mcp-card">
+                        <h2>&#128273;&#160; Your Keys
+                            <span style="font-weight:400;font-size:.85rem;color:#6b7280;margin-left:.5rem">(<t t-esc="len(api_keys)"/>)</span>
+                        </h2>
+                        <t t-if="not api_keys">
+                            <p class="empty-msg">No keys yet — create your first key above.</p>
+                        </t>
+                        <t t-foreach="api_keys" t-as="key">
+                            <div class="key-row">
+                                <div class="key-top">
+                                    <div class="key-meta">
+                                        <strong><t t-esc="key.name"/></strong>
+                                        <span>
+                                            <span class="key-prefix"><t t-esc="key.key_prefix"/>...</span>
+                                            &#160;&#160;Rate: <t t-esc="key.rate_limit or 'unlimited'"/>/hr
+                                            &#160;&#160;Used: <t t-esc="key.use_count"/> times
+                                            <t t-if="key.last_used">&#160;&#160;Last: <t t-esc="key.last_used"/></t>
+                                            <t t-if="not key.last_used">&#160;&#160;Never used</t>
+                                        </span>
+                                        <div class="perm-pills">
+                                            <span class="perm-pill">Read</span>
+                                            <t t-if="key.perm_write"><span class="perm-pill">Write</span></t>
+                                            <t t-if="key.perm_create"><span class="perm-pill">Create</span></t>
+                                            <t t-if="key.perm_delete"><span class="perm-pill">Delete</span></t>
+                                            <t t-if="key.perm_execute"><span class="perm-pill">Execute</span></t>
+                                        </div>
+                                    </div>
+                                    <div class="key-actions">
+                                        <!-- View/hide config -->
+                                        <button class="btn-secondary" type="button"
+                                                t-attf-onclick="toggleConfig(this,'cfg-#{key.id}')">
+                                            &#128196; View Config
+                                        </button>
+                                        <!-- Regenerate -->
+                                        <form method="POST" action="/mcp/connect/rotate" style="margin:0"
+                                              onsubmit="return confirm('Regenerate this key? The old key will stop working immediately.')">
+                                            <input type="hidden" name="csrf_token" t-att-value="csrf_token"/>
+                                            <input type="hidden" name="key_id" t-att-value="key.id"/>
+                                            <button type="submit" class="btn-rotate">&#128260; Regenerate</button>
+                                        </form>
+                                        <!-- Revoke -->
+                                        <form method="POST" action="/mcp/connect/revoke" style="margin:0"
+                                              onsubmit="return confirm('Revoke this key? It will stop working immediately.')">
+                                            <input type="hidden" name="csrf_token" t-att-value="csrf_token"/>
+                                            <input type="hidden" name="key_id" t-att-value="key.id"/>
+                                            <button type="submit" class="btn-danger">&#215; Revoke</button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <!-- Config panel (collapsed by default) -->
+                                <div t-attf-id="cfg-#{key.id}" class="key-config">
+                                    <div class="config-tabs">
+                                        <span class="config-tab active" t-attf-onclick="switchTab('cfg-#{key.id}','claude')">&#129302; Claude Code</span>
+                                        <span class="config-tab" t-attf-onclick="switchTab('cfg-#{key.id}','cursor')">&#9654; Cursor</span>
+                                        <span class="config-tab" t-attf-onclick="switchTab('cfg-#{key.id}','continue')">&#128296; Continue.dev</span>
+                                        <span class="config-tab" t-attf-onclick="switchTab('cfg-#{key.id}','desktop')">&#129302; Desktop</span>
+                                        <span class="config-tab" t-attf-onclick="switchTab('cfg-#{key.id}','gemini')">&#129418; Gemini</span>
+                                        <span class="config-tab" t-attf-onclick="switchTab('cfg-#{key.id}','openai')">&#129302; OpenAI</span>
+                                    </div>
+
+                                    <!-- Claude Code -->
+                                    <div t-attf-id="cfg-#{key.id}-claude" class="config-panel active">
+                                        <div class="code-mini">
+                                            <pre t-attf-id="code-#{key.id}-claude">claude mcp add --transport http [SERVER-NAME] "<t t-esc="server_url"/>/mcp/v1?key=[YOUR_KEY]"</pre>
+                                            <button class="copy-btn-sm" t-attf-onclick="copyCode('code-#{key.id}-claude',this)">&#128203; Copy</button>
+                                        </div>
+                                        <p class="lost-key-note">Replace <code>[YOUR_KEY]</code> with your key. Lost it? <a t-attf-onclick="document.querySelector('form[action=\'/mcp/connect/rotate\'] input[value=\'#{key.id}\']').closest('form').submit()">Regenerate &#8594;</a></p>
+                                    </div>
+
+                                    <!-- Cursor -->
+                                    <div t-attf-id="cfg-#{key.id}-cursor" class="config-panel">
+                                        <div class="code-mini">
+                                            <pre t-attf-id="code-#{key.id}-cursor">{
+  "mcpServers": {
+    "odoo": {
+      "url": "<t t-esc="server_url"/>/mcp/v1",
+      "headers": {
+        "Authorization": "Bearer [YOUR_KEY]"
+      }
+    }
+  }
+}</pre>
+                                            <button class="copy-btn-sm" t-attf-onclick="copyCode('code-#{key.id}-cursor',this)">&#128203; Copy</button>
+                                        </div>
+                                        <p class="lost-key-note">Add to <code>.cursor/mcp.json</code>. Replace <code>[YOUR_KEY]</code>.</p>
+                                    </div>
+
+                                    <!-- Continue.dev -->
+                                    <div t-attf-id="cfg-#{key.id}-continue" class="config-panel">
+                                        <div class="code-mini">
+                                            <pre t-attf-id="code-#{key.id}-continue">{
+  "mcpServers": [{
+    "name": "[SERVER-NAME]",
+    "transport": {
+      "type": "streamable-http",
+      "url": "<t t-esc="server_url"/>/mcp/v1?key=[YOUR_KEY]"
+    }
+  }]
+}</pre>
+                                            <button class="copy-btn-sm" t-attf-onclick="copyCode('code-#{key.id}-continue',this)">&#128203; Copy</button>
+                                        </div>
+                                        <p class="lost-key-note">Merge into <code>~/.continue/config.json</code>. Replace <code>[YOUR_KEY]</code> and <code>[SERVER-NAME]</code>.</p>
+                                    </div>
+
+                                    <!-- Claude Desktop -->
+                                    <div t-attf-id="cfg-#{key.id}-desktop" class="config-panel">
+                                        <div class="code-mini">
+                                            <pre t-attf-id="code-#{key.id}-desktop">{
+  "mcpServers": {
+    "odoo": {
+      "command": "curl",
+      "args": ["-s","-X","POST","<t t-esc="server_url"/>/mcp/v1",
+        "-H","Authorization: Bearer [YOUR_KEY]",
+        "-H","Content-Type: application/json","-d","@-"]
+    }
+  }
+}</pre>
+                                            <button class="copy-btn-sm" t-attf-onclick="copyCode('code-#{key.id}-desktop',this)">&#128203; Copy</button>
+                                        </div>
+                                        <p class="lost-key-note">Replace <code>[YOUR_KEY]</code>.</p>
+                                    </div>
+
+                                    <!-- Gemini CLI -->
+                                    <div t-attf-id="cfg-#{key.id}-gemini" class="config-panel">
+                                        <div class="code-mini">
+                                            <pre t-attf-id="code-#{key.id}-gemini">{
+  "mcpServers": {
+    "odoo": {
+      "httpUrl": "<t t-esc="server_url"/>/mcp/v1",
+      "headers": {
+        "Authorization": "Bearer [YOUR_KEY]"
+      }
+    }
+  }
+}</pre>
+                                            <button class="copy-btn-sm" t-attf-onclick="copyCode('code-#{key.id}-gemini',this)">&#128203; Copy</button>
+                                        </div>
+                                        <p class="lost-key-note">Merge into <code>~/.gemini/settings.json</code>. Install: <code>npm i -g @google/generative-ai-cli</code></p>
+                                    </div>
+
+                                    <!-- OpenAI -->
+                                    <div t-attf-id="cfg-#{key.id}-openai" class="config-panel">
+                                        <div class="code-mini">
+                                            <pre t-attf-id="code-#{key.id}-openai"># pip install openai mcp
+# No native MCP in ChatGPT — use Python bridge:
+import asyncio
+from mcp import ClientSession
+from mcp.client.streamable_http import streamablehttp_client
+from openai import OpenAI
+
+MCP_URL = "<t t-esc="server_url"/>/mcp/v1"
+MCP_KEY = "[YOUR_KEY]"
+
+async def get_tools():
+    async with streamablehttp_client(MCP_URL,
+        headers={"Authorization": f"Bearer {MCP_KEY}"}) as (r,w,_):
+        async with ClientSession(r, w) as s:
+            await s.initialize()
+            return (await s.list_tools()).tools
+
+tools = asyncio.run(get_tools())
+oai_tools = [{"type":"function","function":{
+    "name": t.name, "description": t.description,
+    "parameters": t.inputSchema}} for t in tools]
+
+client = OpenAI()  # OPENAI_API_KEY env var
+response = client.chat.completions.create(
+    model="gpt-4o", tools=oai_tools,
+    messages=[{"role":"user","content":"Your question here"}]
+)</pre>
+                                            <button class="copy-btn-sm" t-attf-onclick="copyCode('code-#{key.id}-openai',this)">&#128203; Copy</button>
+                                        </div>
+                                        <p class="lost-key-note">Replace <code>[YOUR_KEY]</code> with your key. For ChatGPT: paste this URL directly as Server URL (No Auth). Requires public URL.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+            </div>
+
+            <script type="text/javascript">
+                function toggleConfig(btn, id) {
+                    var panel = document.getElementById(id);
+                    if (!panel) return;
+                    var open = panel.classList.toggle('open');
+                    btn.textContent = open ? '▲ Hide Config' : '📄 View Config';
+                }
+                function switchTab(prefix, name) {
+                    var container = document.getElementById(prefix);
+                    if (!container) return;
+                    container.querySelectorAll('.config-tab').forEach(function(t) { t.classList.remove('active'); });
+                    container.querySelectorAll('.config-panel').forEach(function(p) { p.classList.remove('active'); });
+                    event.target.classList.add('active');
+                    var panel = document.getElementById(prefix + '-' + name);
+                    if (panel) panel.classList.add('active');
+                }
+                function copyCode(id, btn) {
+                    var text = document.getElementById(id).textContent;
+                    navigator.clipboard.writeText(text).then(function() {
+                        btn.textContent = '✓ Copied!';
+                        btn.classList.add('copied');
+                        setTimeout(function() { btn.textContent = '📋 Copy'; btn.classList.remove('copied'); }, 2500);
+                    }).catch(function() {
+                        var ta = document.createElement('textarea');
+                        ta.value = text; document.body.appendChild(ta); ta.select();
+                        document.execCommand('copy'); document.body.removeChild(ta);
+                        btn.textContent = '✓ Copied!';
+                        setTimeout(function() { btn.textContent = '📋 Copy'; }, 2500);
+                    });
+                }
+            </script>
+        </t>
+    </template>
+
+
+    <!-- Key Created page — shows plain key + configs with download button -->
+    <template id="portal_mcp_key_created" name="MCP Key Created">
+        <t t-call="web.layout">
+            <t t-set="head">
+                <title>Key Created — Save Your Config</title>
+                <style>
+                    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+                    body { font-family: system-ui, -apple-system, sans-serif; background: #F3F4F6; color: #111827; }
+                    .mcp-wrap { max-width: 720px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+                    .success-banner { background: #ecfdf5; border: 1px solid #6ee7b7; border-radius: 10px; padding: 1.2rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: .75rem; }
+                    .success-banner .icon { font-size: 1.5rem; }
+                    .success-banner h2 { font-size: 1.1rem; font-weight: 700; color: #065f46; }
+                    .success-banner p { font-size: .85rem; color: #047857; margin-top: .15rem; }
+                    .warn-banner { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; font-size: .875rem; color: #92400e; }
+                    .mcp-card { background: #fff; border-radius: 10px; box-shadow: 0 1px 6px rgba(0,0,0,.07); padding: 1.5rem; margin-bottom: 1.25rem; }
+                    .mcp-card h3 { font-size: .95rem; font-weight: 700; color: #1f2937; margin-bottom: .75rem; }
+                    .mcp-card .hint { font-size: .8rem; color: #6b7280; margin-bottom: .6rem; }
+                    .code-wrap { position: relative; }
+                    .code-block { background: #1e1e2e; color: #cdd6f4; border-radius: 8px; padding: 1rem; font-family: monospace; font-size: .78rem; line-height: 1.6; overflow-x: auto; white-space: pre; margin: 0; }
+                    .copy-btn { position: absolute; top: .5rem; right: .5rem; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); color: #cdd6f4; padding: .3rem .7rem; border-radius: 5px; font-size: .75rem; cursor: pointer; transition: all .15s; white-space: nowrap; }
+                    .copy-btn:hover { background: rgba(255,255,255,.2); }
+                    .copy-btn.copied { background: #059669; border-color: #059669; color: #fff; }
+                    .key-display { background: #1e1e2e; border: 2px solid #6c47ff; border-radius: 8px; padding: 1rem; font-family: monospace; font-size: .9rem; color: #a78bfa; word-break: break-all; margin-bottom: .5rem; }
+                    .download-bar { display: flex; gap: .75rem; margin-top: 1rem; flex-wrap: wrap; }
+                    .btn-download { display: inline-flex; align-items: center; gap: .4rem; background: #6c47ff; color: #fff; padding: .55rem 1.25rem; border-radius: 7px; font-size: .875rem; font-weight: 600; border: none; cursor: pointer; text-decoration: none; transition: background .15s; }
+                    .btn-download:hover { background: #5a36e8; color: #fff; }
+                    .back-link { display: inline-flex; align-items: center; gap: .4rem; color: #6c47ff; text-decoration: none; font-size: .875rem; font-weight: 600; margin-top: .5rem; }
+                    .back-link:hover { text-decoration: underline; }
+                    .setup-steps { margin-top: 1rem; background: #f8fafc; border-left: 3px solid #6c47ff; border-radius: 0 6px 6px 0; padding: .75rem 1rem; }
+                    .steps-title { font-size: .75rem; font-weight: 700; color: #6c47ff; text-transform: uppercase; letter-spacing: .05em; margin-bottom: .4rem; }
+                    .setup-steps ol { margin: 0; padding-left: 1.25rem; }
+                    .setup-steps li { font-size: .8rem; color: #374151; line-height: 1.6; margin-bottom: .25rem; }
+                    .setup-steps code { background: #e8e8f8; color: #4c1d95; padding: 1px 5px; border-radius: 3px; font-size: .78rem; }
+                </style>
+            </t>
+
+            <div class="mcp-wrap">
+                <div class="success-banner">
+                    <span class="icon">&#9989;</span>
+                    <div>
+                        <h2>Key Created: <t t-esc="key_name"/></h2>
+                        <p>Copy or download your configs now — the plain key is shown only once.</p>
+                    </div>
+                </div>
+
+                <div class="warn-banner">
+                    <strong>&#9888; Save this key now</strong> — it cannot be retrieved again. Use <strong>Download Config</strong> below to save everything.
+                </div>
+
+                <!-- Plain Key -->
+                <div class="mcp-card">
+                    <h3>&#128273;&#160; Your API Key</h3>
+                    <div class="key-display"><t t-esc="plain_key"/></div>
+                    <div class="code-wrap">
+                        <pre class="code-block" id="key-code"><t t-esc="plain_key"/></pre>
+                        <button class="copy-btn" onclick="copyEl('key-code',this)">&#128203; Copy Key</button>
+                    </div>
+                    <div class="download-bar">
+                        <button class="btn-download" id="dl-btn">&#11015; Download Config File</button>
+                    </div>
+                </div>
+
+                <!-- Claude Code -->
+                <div class="mcp-card">
+                    <h3>&#129302;&#160; Claude Code</h3>
+                    <p class="hint">AI coding assistant by Anthropic with full MCP support. Works in your terminal.</p>
+                    <div class="code-wrap">
+                        <pre class="code-block" id="claude-code">claude mcp add --transport http <t t-esc="mcp_server_name or 'odoo'"/> "<t t-esc="mcp_endpoint"/>?key=<t t-esc="plain_key"/>"</pre>
+                        <button class="copy-btn" onclick="copyEl('claude-code',this)">&#128203; Copy</button>
+                    </div>
+                    <div class="setup-steps">
+                        <div class="steps-title">&#128196; Setup Steps</div>
+                        <ol>
+                            <li>Install Claude Code: <code>npm install -g @anthropic-ai/claude-code</code></li>
+                            <li>Run the command above once in your terminal.</li>
+                            <li>Open Claude Code: <code>claude</code></li>
+                            <li>Test it: type <em>"List my top 5 customers in Odoo"</em></li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Cursor -->
+                <div class="mcp-card">
+                    <h3>&#9654;&#160; Cursor IDE</h3>
+                    <p class="hint">AI-powered code editor with native MCP support. Connect Odoo data directly into your codebase workflow.</p>
+                    <div class="code-wrap">
+                        <pre class="code-block" id="cursor-config">{
+  "mcpServers": {
+    "<t t-esc="mcp_server_name or 'odoo'"/>": {
+      "url": "<t t-esc="mcp_endpoint"/>",
+      "headers": { "Authorization": "Bearer <t t-esc="plain_key"/>" }
+    }
+  }
+}</pre>
+                        <button class="copy-btn" onclick="copyEl('cursor-config',this)">&#128203; Copy</button>
+                    </div>
+                    <div class="setup-steps">
+                        <div class="steps-title">&#128196; Setup Steps</div>
+                        <ol>
+                            <li>Install Cursor from <strong>cursor.com</strong> (free plan available).</li>
+                            <li>Create or open <code>.cursor/mcp.json</code> in your project root — or <code>~/.cursor/mcp.json</code> for all projects.</li>
+                            <li>Paste the JSON above. If <code>mcpServers</code> already exists, merge this entry inside it.</li>
+                            <li>Save the file and restart Cursor.</li>
+                            <li>Open Cursor Chat, type <code>@<t t-esc="mcp_server_name or 'odoo'"/></code> to activate Odoo tools.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Continue.dev -->
+                <div class="mcp-card">
+                    <h3>&#128296;&#160; Continue.dev</h3>
+                    <p class="hint">Open-source AI coding assistant for VS Code and JetBrains with full MCP support.</p>
+                    <div class="code-wrap">
+                        <pre class="code-block" id="continue-config">{
+  "mcpServers": [{
+    "name": "<t t-esc="mcp_server_name or 'odoo'"/>",
+    "transport": {
+      "type": "streamable-http",
+      "url": "<t t-esc="mcp_endpoint"/>?key=<t t-esc="plain_key"/>"
+    }
+  }]
+}</pre>
+                        <button class="copy-btn" onclick="copyEl('continue-config',this)">&#128203; Copy</button>
+                    </div>
+                    <div class="setup-steps">
+                        <div class="steps-title">&#128196; Setup Steps</div>
+                        <ol>
+                            <li>Install Continue extension in VS Code (<strong>Extensions</strong> → search "Continue") or JetBrains Marketplace.</li>
+                            <li>Open <code>~/.continue/config.json</code> (Continue sidebar → gear icon → Open config).</li>
+                            <li>Add the JSON above inside the <code>mcpServers</code> array. Create the array if it doesn't exist.</li>
+                            <li>Save. Reload VS Code: <code>Ctrl+Shift+P</code> → <em>Developer: Reload Window</em>.</li>
+                            <li>In Continue chat, your Odoo tools are automatically available. Ask: <em>"How many open invoices do I have?"</em></li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Claude Desktop -->
+                <div class="mcp-card">
+                    <h3>&#129302;&#160; Claude Desktop</h3>
+                    <p class="hint">Anthropic's desktop app for Mac and Windows. MCP tools are built-in — no CLI needed.</p>
+                    <div class="code-wrap">
+                        <pre class="code-block" id="desktop-config">{
+  "mcpServers": {
+    "<t t-esc="mcp_server_name or 'odoo'"/>": {
+      "command": "curl",
+      "args": ["-s","-X","POST","<t t-esc="mcp_endpoint"/>",
+        "-H","Authorization: Bearer <t t-esc="plain_key"/>",
+        "-H","Content-Type: application/json","-d","@-"]
+    }
+  }
+}</pre>
+                        <button class="copy-btn" onclick="copyEl('desktop-config',this)">&#128203; Copy</button>
+                    </div>
+                    <div class="setup-steps">
+                        <div class="steps-title">&#128196; Setup Steps</div>
+                        <ol>
+                            <li>Download Claude Desktop from <strong>claude.ai/download</strong>. Install and log in.</li>
+                            <li>Open: <strong>Settings</strong> (top-right menu) &#8594; <strong>Developer</strong> &#8594; <strong>Edit Config</strong>.</li>
+                            <li>Paste the JSON above, merging into the <code>mcpServers</code> key.</li>
+                            <li>Save and <strong>restart Claude Desktop</strong> completely.</li>
+                            <li>In a new chat you'll see a hammer &#128296; icon — click it to see all Odoo tools. Ask: <em>"Show me overdue invoices"</em></li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Gemini CLI -->
+                <div class="mcp-card">
+                    <h3>&#129418;&#160; Gemini CLI</h3>
+                    <p class="hint">Google's open-source AI agent for the terminal. Free tier available with a Google account.</p>
+                    <div class="code-wrap">
+                        <pre class="code-block" id="gemini-config">{
+  "mcpServers": {
+    "<t t-esc="mcp_server_name or 'odoo'"/>": {
+      "httpUrl": "<t t-esc="mcp_endpoint"/>",
+      "headers": {
+        "Authorization": "Bearer <t t-esc="plain_key"/>"
+      }
+    }
+  }
+}</pre>
+                        <button class="copy-btn" onclick="copyEl('gemini-config',this)">&#128203; Copy</button>
+                    </div>
+                    <div class="setup-steps">
+                        <div class="steps-title">&#128196; Setup Steps</div>
+                        <ol>
+                            <li>Install Gemini CLI: <code>npm install -g @google/gemini-cli</code></li>
+                            <li>Authenticate: run <code>gemini</code> and follow the Google login prompt.</li>
+                            <li>Open or create <code>~/.gemini/settings.json</code>.</li>
+                            <li>Paste the JSON above, merging into the <code>mcpServers</code> key.</li>
+                            <li>Run <code>gemini</code> and ask: <em>"What are my top customers by sales?"</em></li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Codex CLI -->
+                <div class="mcp-card">
+                    <h3>&#128187;&#160; Codex CLI (OpenAI)</h3>
+                    <p class="hint">OpenAI's terminal AI agent. Uses your OpenAI API key and supports MCP servers.</p>
+                    <div class="code-wrap">
+                        <pre class="code-block" id="codex-config"># Add to ~/.codex/config.yaml
+mcp_servers:
+  - name: <t t-esc="mcp_server_name or 'odoo'"/>
+    url: <t t-esc="mcp_endpoint"/>?key=<t t-esc="plain_key"/></pre>
+                        <button class="copy-btn" onclick="copyEl('codex-config',this)">&#128203; Copy</button>
+                    </div>
+                    <div class="setup-steps">
+                        <div class="steps-title">&#128196; Setup Steps</div>
+                        <ol>
+                            <li>Install Codex CLI: <code>npm install -g @openai/codex</code></li>
+                            <li>Set your OpenAI key: <code>export OPENAI_API_KEY=sk-...</code></li>
+                            <li>Create or open <code>~/.codex/config.yaml</code> and paste the YAML above.</li>
+                            <li>Run <code>codex</code> in your terminal.</li>
+                            <li>Ask: <em>"Search Odoo for customers with overdue payments"</em></li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- OpenCode -->
+                <div class="mcp-card">
+                    <h3>&#9881;&#160; OpenCode</h3>
+                    <p class="hint">Open-source AI coding agent for the terminal. Supports multiple AI providers and MCP servers.</p>
+                    <div class="code-wrap">
+                        <pre class="code-block" id="opencode-config">{
+  "mcp": {
+    "<t t-esc="mcp_server_name or 'odoo'"/>": {
+      "type": "remote",
+      "url": "<t t-esc="mcp_endpoint"/>?key=<t t-esc="plain_key"/>"
+    }
+  }
+}</pre>
+                        <button class="copy-btn" onclick="copyEl('opencode-config',this)">&#128203; Copy</button>
+                    </div>
+                    <div class="setup-steps">
+                        <div class="steps-title">&#128196; Setup Steps</div>
+                        <ol>
+                            <li>Install OpenCode: <code>npm install -g opencode-ai</code> or visit <strong>opencode.ai</strong>.</li>
+                            <li>Create <code>opencode.json</code> in your project root — or <code>~/.config/opencode/opencode.json</code> globally.</li>
+                            <li>Paste the JSON above and save.</li>
+                            <li>Run <code>opencode</code> in your terminal.</li>
+                            <li>Ask: <em>"Show me my pending sale orders in Odoo"</em></li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- ChatGPT Native MCP -->
+                <div class="mcp-card">
+                    <h3>&#128172;&#160; ChatGPT (Native MCP)</h3>
+                    <p class="hint">ChatGPT.com supports MCP connectors directly — just paste the URL below. No file config needed. Requires a public URL (ngrok, Odoo.sh, or cloud server).</p>
+                    <div class="code-wrap">
+                        <pre class="code-block" id="chatgpt-url"><t t-esc="mcp_endpoint"/>?key=<t t-esc="plain_key"/></pre>
+                        <button class="copy-btn" onclick="copyEl('chatgpt-url',this)">&#128203; Copy</button>
+                    </div>
+                    <div class="setup-steps">
+                        <div class="steps-title">&#128196; Setup Steps</div>
+                        <ol>
+                            <li>Go to <strong>chatgpt.com</strong> → left sidebar → <strong>Apps</strong> (or the Codex icon).</li>
+                            <li>Click <strong>New App</strong> → give it a name like <em>Odoo</em>.</li>
+                            <li>Under <strong>Connection</strong> → select the <strong>Server URL</strong> tab.</li>
+                            <li>Paste the URL above into the Server URL field.</li>
+                            <li>Authentication → set to <strong>No Auth</strong> (the API key is already in the URL).</li>
+                            <li>Check <em>"I understand and want to continue"</em> → click <strong>Create</strong>.</li>
+                            <li>Ask ChatGPT: <em>"Show my overdue invoices"</em> — it will use your Odoo data.</li>
+                        </ol>
+                        <div style="margin-top:8px;padding:6px 8px;background:#fef3c7;border-radius:5px;font-size:11px;color:#92400e">
+                            &#9888; ChatGPT's MCP connector only works with <strong>publicly reachable URLs</strong> (not localhost). Use ngrok, Odoo.sh, or a cloud server.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OpenAI Python -->
+                <div class="mcp-card">
+                    <h3>&#128013;&#160; OpenAI / ChatGPT (Python bridge)</h3>
+                    <p class="hint">Alternative: use a Python script to load Odoo tools into any OpenAI-compatible call. Works with localhost too.</p>
+                    <div class="code-wrap">
+                        <pre class="code-block" id="openai-config"># pip install openai mcp
+import asyncio
+from mcp import ClientSession
+from mcp.client.streamable_http import streamablehttp_client
+from openai import OpenAI
+
+MCP_URL = "<t t-esc="mcp_endpoint"/>?key=<t t-esc="plain_key"/>"
+
+async def get_tools():
+    async with streamablehttp_client(MCP_URL) as (r, w, _):
+        async with ClientSession(r, w) as s:
+            await s.initialize()
+            return (await s.list_tools()).tools
+
+tools = asyncio.run(get_tools())
+oai_tools = [{"type": "function", "function": {
+    "name": t.name, "description": t.description,
+    "parameters": t.inputSchema}} for t in tools]
+
+client = OpenAI()  # set OPENAI_API_KEY env var
+response = client.chat.completions.create(
+    model="gpt-4o", tools=oai_tools,
+    messages=[{"role": "user", "content": "Search for top 5 customers"}]
+)</pre>
+                        <button class="copy-btn" onclick="copyEl('openai-config',this)">&#128203; Copy</button>
+                    </div>
+                    <div class="setup-steps">
+                        <div class="steps-title">&#128196; Setup Steps</div>
+                        <ol>
+                            <li>Install dependencies: <code>pip install openai mcp</code></li>
+                            <li>Set your OpenAI key: <code>export OPENAI_API_KEY=sk-...</code></li>
+                            <li>Copy the script above into a file, e.g. <code>odoo_ai.py</code>.</li>
+                            <li>Run it: <code>python odoo_ai.py</code></li>
+                            <li>Change the last line's <code>content</code> to your actual question. The script loads all Odoo MCP tools as OpenAI functions automatically.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <a href="/mcp/connect" class="back-link">&#8592; Back to my keys</a>
+            </div>
+
+            <script type="text/javascript">
+                function copyEl(id, btn) {
+                    var text = document.getElementById(id).textContent;
+                    navigator.clipboard.writeText(text).then(function() {
+                        btn.textContent = '✓ Copied!'; btn.classList.add('copied');
+                        setTimeout(function() { btn.textContent = '📋 Copy'; btn.classList.remove('copied'); }, 2500);
+                    }).catch(function() {
+                        var ta = document.createElement('textarea'); ta.value = text;
+                        document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+                        btn.textContent = '✓ Copied!';
+                        setTimeout(function() { btn.textContent = '📋 Copy'; }, 2500);
+                    });
+                }
+
+                // Build download file from all configs on the page
+                document.getElementById('dl-btn').addEventListener('click', function() {
+                    var key      = document.getElementById('key-code').textContent.trim();
+                    var claude   = document.getElementById('claude-code').textContent.trim();
+                    var cursor   = document.getElementById('cursor-config').textContent.trim();
+                    var cont     = document.getElementById('continue-config').textContent.trim();
+                    var desk     = document.getElementById('desktop-config').textContent.trim();
+                    var gemini   = document.getElementById('gemini-config').textContent.trim();
+                    var codex    = document.getElementById('codex-config').textContent.trim();
+                    var opencode = document.getElementById('opencode-config').textContent.trim();
+                    var chatgpt  = document.getElementById('chatgpt-url').textContent.trim();
+                    var oai      = document.getElementById('openai-config').textContent.trim();
+                    var txt = [
+                        '# Odoo MCP Server — Connection Config',
+                        '# Generated: ' + new Date().toISOString(),
+                        '# KEEP THIS FILE SECURE — treat like a password',
+                        '',
+                        '== YOUR API KEY ==',
+                        key,
+                        '',
+                        '== Claude Code (run in terminal) ==',
+                        claude,
+                        '',
+                        '== Cursor IDE (.cursor/mcp.json) ==',
+                        cursor,
+                        '',
+                        '== Continue.dev (~/.continue/config.json) ==',
+                        cont,
+                        '',
+                        '== Claude Desktop (claude_desktop_config.json) ==',
+                        desk,
+                        '',
+                        '== Gemini CLI (~/.gemini/settings.json) ==',
+                        gemini,
+                        '',
+                        '== Codex CLI (~/.codex/config.yaml) ==',
+                        codex,
+                        '',
+                        '== OpenCode (opencode.json) ==',
+                        opencode,
+                        '',
+                        '== ChatGPT Native MCP (paste as Server URL) ==',
+                        chatgpt,
+                        '',
+                        '== OpenAI Python bridge ==',
+                        oai,
+                    ].join('\n');
+                    var blob = new Blob([txt], {type: 'text/plain'});
+                    var a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'odoo-mcp-config.txt';
+                    a.click();
+                });
+            </script>
+        </t>
+    </template>
+
+</odoo>

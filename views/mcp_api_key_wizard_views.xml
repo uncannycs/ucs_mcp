@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Wizard form — step 1 (no plain_key) / step 2 (plain_key set) -->
+    <record id="view_mcp_api_key_wizard_form" model="ir.ui.view">
+        <field name="name">mcp.api.key.wizard.form</field>
+        <field name="model">mcp.api.key.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generate MCP API Key">
+
+                <!-- Step 1 — input -->
+                <group invisible="plain_key" string="Key Settings">
+                    <group>
+                        <field name="name"/>
+                        <field name="mcp_server_name"
+                               placeholder="odoo  (e.g. odoo-acme, my-erp — no spaces)"/>
+                        <field name="user_id"/>
+                        <field name="expiry_date"/>
+                        <field name="rate_limit"/>
+                    </group>
+                    <group string="Permissions">
+                        <field name="perm_write"/>
+                        <field name="perm_create"/>
+                        <field name="perm_delete"/>
+                        <field name="perm_execute"/>
+                    </group>
+                    <group string="Model Scope (optional)" colspan="2">
+                        <field name="allowed_models"
+                               placeholder="sale.order, account.move  (empty = all models)"
+                               nolabel="1" colspan="2"/>
+                    </group>
+                </group>
+
+                <!-- Step 2 — result -->
+                <group invisible="not plain_key">
+
+                    <!-- Success banner -->
+                    <div colspan="2" style="background:linear-gradient(135deg,#059669,#047857);border-radius:8px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
+                        <span style="font-size:20px">&#9989;</span>
+                        <div>
+                            <div style="font-weight:700;color:#fff;font-size:13px">Key created — copy it now!</div>
+                            <div style="color:rgba(255,255,255,.85);font-size:12px">This plain key will <strong>never</strong> be shown again. Once you close this dialog it is gone.</div>
+                        </div>
+                    </div>
+
+                    <!-- Key + endpoint -->
+                    <group string="Your Credentials" colspan="2">
+                        <field name="plain_key" readonly="1" widget="CopyClipboardChar"/>
+                        <field name="mcp_endpoint" readonly="1" widget="CopyClipboardChar"/>
+                    </group>
+
+                    <!-- Section heading -->
+                    <div colspan="2" style="font-weight:700;font-size:13px;color:#1f2937;margin:6px 0 4px 0;border-bottom:2px solid #6c47ff;padding-bottom:6px">
+                        &#128279; Connect your AI client
+                        <span style="font-size:11px;font-weight:400;color:#6b7280;margin-left:8px">Copy the config for your tool and follow the setup steps</span>
+                    </div>
+
+                    <!-- Beautiful HTML cards grid -->
+                    <field name="step2_html" colspan="2" nolabel="1" readonly="1"/>
+
+                </group>
+
+                <footer>
+                    <!-- Step 1 footer -->
+                    <button name="action_generate" string="Generate Key →" type="object"
+                            class="btn-primary" invisible="plain_key"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"
+                            invisible="plain_key"/>
+                    <!-- Step 2 footer -->
+                    <button name="action_open_key" string="Open Key Record" type="object"
+                            class="btn-primary" invisible="not plain_key"/>
+                    <button name="action_download_config" string="↓ Download Config" type="object"
+                            class="btn-secondary" invisible="not plain_key"/>
+                    <button string="Done" class="btn-secondary" special="cancel"
+                            invisible="not plain_key"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Server action to open wizard from API Keys list/form -->
+    <record id="action_mcp_api_key_wizard" model="ir.actions.act_window">
+        <field name="name">Generate New MCP Key</field>
+        <field name="res_model">mcp.api.key.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{"dialog_size": "extra-large"}</field>
+    </record>
+
+</odoo>
