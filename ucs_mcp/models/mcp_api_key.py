@@ -96,11 +96,36 @@ class McpApiKey(models.Model):
     last_used = fields.Datetime(string="Last Used", readonly=True)
     use_count = fields.Integer(string="Total Uses", default=0, readonly=True)
 
+    # Shown once after key creation from backend form, cleared by user action
+    plain_key_once = fields.Char(
+        string="API Key — copy now, shown once",
+        readonly=True,
+        copy=False,
+        help="Plain key generated on save. Click 'I've saved the key' to clear it.",
+    )
+
     _key_hash_unique = models.Constraint("UNIQUE(key_hash)", "API key hash must be unique.")
 
     def _compute_hash(self, plain_key):
         """Return SHA-256 hex digest of a plain key."""
         return hashlib.sha256(plain_key.encode()).hexdigest()
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        # Auto-generate key_hash when creating from the backend form (no hash provided)
+        for vals in vals_list:
+            if not vals.get("key_hash"):
+                plain_key = _PLAIN_KEY_PREFIX + secrets.token_urlsafe(_KEY_BYTES)
+                vals["key_hash"] = self._compute_hash(plain_key)
+                vals["key_prefix"] = plain_key[:12]
+                vals["plain_key_once"] = plain_key
+        return super().create(vals_list)
+
+    def action_clear_plain_key(self):
+        """User confirms they've saved the key — clear plain_key_once from DB."""
+        self.ensure_one()
+        # sudo() needed: user may not have write permission on this field directly
+        self.sudo().write({"plain_key_once": False})
 
     @api.model
     def generate_key(self, name, user_id=None, **kwargs):

@@ -36,6 +36,16 @@
                 <sheet>
                     <widget name="web_ribbon" title="Archived" bg_color="bg-danger"
                             invisible="active"/>
+                    <div class="alert alert-warning o_form_editable" role="alert"
+                         invisible="not plain_key_once">
+                        <strong>Your API key — copy it now, it won't be shown again:</strong>
+                        <div class="mt-2 mb-2">
+                            <field name="plain_key_once" readonly="1" nolabel="1"
+                                   style="font-family:monospace;font-size:13px;word-break:break-all;"/>
+                        </div>
+                        <button name="action_clear_plain_key" type="object"
+                                string="I've saved the key ✓" class="btn btn-sm btn-warning"/>
+                    </div>
                     <div class="oe_title">
                         <h1><field name="name" placeholder="Key name"/></h1>
                     </div>
