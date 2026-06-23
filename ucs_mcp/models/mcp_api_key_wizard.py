@@ -12,48 +12,28 @@ _COPY_JS = (
     "var el=document.getElementById('{cid}');"
     "var t=el.textContent;"
     "navigator.clipboard.writeText(t).then(function(){{"
-    "  this.textContent='✓ Copied!';this.style.background='#059669';"
+    "  this.textContent='✓ Copied';"
+    "  this.style.borderColor='#198754';this.style.color='#198754';"
     "  var b=this;"
-    "  setTimeout(function(){{b.textContent='Copy';b.style.background='rgba(255,255,255,.12)';}},2200);"
+    "  setTimeout(function(){{"
+    "    b.textContent='Copy';"
+    "    b.style.borderColor='rgba(255,255,255,.25)';b.style.color='#adb5bd';"
+    "  }},2000);"
     "}}.bind(this)).catch(function(){{"
     "  var ta=document.createElement('textarea');ta.value=t;"
     "  document.body.appendChild(ta);ta.select();document.execCommand('copy');"
     "  document.body.removeChild(ta);"
-    "  this.textContent='✓ Copied!';var b=this;"
-    "  setTimeout(function(){{b.textContent='Copy';}},2200);"
+    "  this.textContent='✓ Copied';var b=this;"
+    "  setTimeout(function(){{b.textContent='Copy';}},2000);"
     "}}.bind(this));"
 )
 
-_CARD_STYLE = (
-    "border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;"
-    "background:#fff;display:flex;flex-direction:column;"
+# Inline code style — neutral, readable, no brand color
+_CI = (
+    "background:#f1f5f9;color:#0f172a;padding:1px 5px;"
+    "border-radius:3px;font-family:monospace;font-size:10.5px;"
+    "border:1px solid #e2e8f0;"
 )
-_HEADER_STYLE = (
-    "background:linear-gradient(135deg,#6c47ff 0%,#9370db 100%);"
-    "padding:10px 14px;display:flex;align-items:center;gap:8px;"
-)
-_CODE_WRAP = "position:relative;margin:0;"
-_PRE_STYLE = (
-    "background:#0d1117;color:#e6edf3;border-radius:0;padding:12px 14px;"
-    "font-size:11.5px;line-height:1.55;overflow-x:auto;white-space:pre;"
-    "margin:0;font-family:'Fira Code',monospace,monospace;"
-)
-_COPY_BTN = (
-    "position:absolute;top:6px;right:6px;background:rgba(255,255,255,.12);"
-    "border:1px solid rgba(255,255,255,.2);color:#e6edf3;padding:3px 9px;"
-    "border-radius:5px;font-size:11px;cursor:pointer;transition:background .15s;"
-)
-_STEPS_STYLE = (
-    "padding:10px 14px 12px 14px;background:#f9fafb;"
-    "border-top:1px solid #f0f0f0;flex:1;"
-)
-_STEPS_TITLE = (
-    "font-size:10.5px;font-weight:700;color:#6c47ff;"
-    "text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;"
-)
-_OL_STYLE = "margin:0;padding-left:16px;"
-_LI_STYLE = "font-size:11.5px;color:#374151;line-height:1.6;margin-bottom:1px;"
-_CODE_INLINE = "background:#ede9fe;color:#4c1d95;padding:1px 4px;border-radius:3px;font-size:11px;"
 
 
 def _e(s):
@@ -61,37 +41,74 @@ def _e(s):
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
 
 
-def _card(rec_id, slot, emoji, name, desc, code, steps):
-    """Render one client config card."""
+def _card(rec_id, slot, accent, badge, emoji, name, desc, code, steps):
+    """Render one client config card — Bootstrap 5 / Odoo-native styling."""
     cid = "wzcfg-%d-%s" % (rec_id, slot)
     code_esc = _e(code)
-    copy_onclick = _COPY_JS.format(cid=cid)
+    copy_js = _COPY_JS.format(cid=cid)
     steps_html = "".join(
-        "<li style='%s'>%s</li>" % (_LI_STYLE, s) for s in steps
+        "<li style='font-size:12px;color:#495057;line-height:1.6;margin-bottom:2px'>%s</li>" % s
+        for s in steps
     )
+    # badge background is accent at 12% opacity
+    badge_bg = accent + "1f"
     return (
-        "<div style='%s'>"
-        "  <div style='%s'>"
-        "    <span style='font-size:18px'>%s</span>"
-        "    <div>"
-        "      <div style='font-weight:700;font-size:13px;color:#fff'>%s</div>"
-        "      <div style='font-size:11px;color:rgba(255,255,255,.8);margin-top:1px'>%s</div>"
+        # Card wrapper
+        "<div style='"
+        "border:1px solid #dee2e6;border-radius:6px;overflow:hidden;"
+        "background:#fff;display:flex;flex-direction:column;"
+        "box-shadow:0 1px 2px rgba(0,0,0,.04)'>"
+
+        # Header — white bg, left accent border, name + badge
+        "  <div style='"
+        "border-left:3px solid {accent};padding:9px 13px;"
+        "display:flex;align-items:center;gap:9px;"
+        "border-bottom:1px solid #f1f3f5'>"
+        "    <span style='font-size:18px;line-height:1;flex-shrink:0'>{emoji}</span>"
+        "    <div style='flex:1;min-width:0'>"
+        "      <div style='display:flex;align-items:center;gap:6px;flex-wrap:wrap'>"
+        "        <span style='font-weight:700;font-size:13px;color:#212529'>{name}</span>"
+        "        <span style='"
+        "font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;"
+        "padding:1px 7px;border-radius:20px;"
+        "background:{badge_bg};color:{accent}"
+        "'>{badge}</span>"
+        "      </div>"
+        "      <div style='font-size:11.5px;color:#6c757d;margin-top:1px'>{desc}</div>"
         "    </div>"
         "  </div>"
-        "  <div style='%s'>"
-        "    <pre id='%s' style='%s'>%s</pre>"
-        "    <button onclick=\"%s\" style='%s'>Copy</button>"
+
+        # Code block
+        "  <div style='position:relative'>"
+        "    <pre id='{cid}' style='"
+        "background:#212529;color:#adb5bd;margin:0;"
+        "padding:10px 13px;font-size:10.5px;line-height:1.55;"
+        "overflow-x:auto;white-space:pre;"
+        "font-family:SFMono-Regular,Menlo,Monaco,Consolas,monospace;"
+        "border-radius:0'>{code_esc}</pre>"
+        "    <button onclick=\"{copy_js}\" style='"
+        "position:absolute;top:6px;right:6px;"
+        "padding:2px 9px;font-size:10.5px;font-weight:500;"
+        "cursor:pointer;border-radius:4px;"
+        "border:1px solid rgba(255,255,255,.25);"
+        "background:transparent;color:#adb5bd;transition:all .15s;"
+        "'>Copy</button>"
         "  </div>"
-        "  <div style='%s'>"
-        "    <div style='%s'>&#128196; Setup</div>"
-        "    <ol style='%s'>%s</ol>"
+
+        # Setup steps
+        "  <div style='padding:9px 13px 11px;background:#f8f9fa;border-top:1px solid #f1f3f5;flex:1'>"
+        "    <div style='"
+        "font-size:9.5px;font-weight:700;color:#adb5bd;"
+        "text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px"
+        "'>Setup</div>"
+        "    <ol style='margin:0;padding-left:16px'>{steps_html}</ol>"
         "  </div>"
         "</div>"
-    ) % (
-        _CARD_STYLE, _HEADER_STYLE,
-        emoji, _e(name), _e(desc),
-        _CODE_WRAP, cid, _PRE_STYLE, code_esc, copy_onclick, _COPY_BTN,
-        _STEPS_STYLE, _STEPS_TITLE, _OL_STYLE, steps_html,
+    ).format(
+        accent=accent, badge_bg=badge_bg, badge=badge,
+        emoji=emoji, name=_e(name), desc=_e(desc),
+        cid=cid, code_esc=code_esc, copy_js=copy_js,
+        steps_html=steps_html,
     )
 
 
@@ -231,108 +248,107 @@ class McpApiKeyWizard(models.TransientModel):
             endpoint = r.mcp_endpoint or ""
             k = r.plain_key or "[YOUR_KEY]"
 
+            ci = _CI  # inline code style shorthand
             cards = [
-                _card(rid, "claude", "🤖", "Claude Code",
+                _card(rid, "claude", "#5b4fcf", "CLI", "🤖", "Claude Code",
                       "Anthropic's AI coding CLI — run once in terminal, done.",
                       r.config_claude or "",
                       [
-                          "Install: <code style='%s'>npm install -g @anthropic-ai/claude-code</code>" % _CODE_INLINE,
+                          "Install: <code style='%s'>npm install -g @anthropic-ai/claude-code</code>" % ci,
                           "Run the command above in your terminal.",
-                          "Open Claude Code: <code style='%s'>claude</code>" % _CODE_INLINE,
+                          "Open Claude Code: <code style='%s'>claude</code>" % ci,
                           "Test: <em>\"List my top 5 customers in Odoo\"</em>",
                       ]),
-                _card(rid, "cursor", "▶", "Cursor IDE",
+                _card(rid, "cursor", "#0d6efd", "IDE", "▶", "Cursor IDE",
                       "AI-first code editor with native MCP support.",
                       r.config_cursor or "",
                       [
                           "Install Cursor from <strong>cursor.com</strong>.",
-                          "Create or open <code style='%s'>.cursor/mcp.json</code> in your project root." % _CODE_INLINE,
-                          "Paste the JSON above (merge into <code style='%s'>mcpServers</code> if it exists)." % _CODE_INLINE,
-                          "Save and restart Cursor. Type <code style='%s'>@%s</code> in Cursor Chat." % (_CODE_INLINE, srv),
+                          "Create or open <code style='%s'>.cursor/mcp.json</code> in project root." % ci,
+                          "Paste JSON above (merge into <code style='%s'>mcpServers</code>)." % ci,
+                          "Restart Cursor. Type <code style='%s'>@%s</code> in Cursor Chat." % (ci, srv),
                       ]),
-                _card(rid, "continue", "🔧", "Continue.dev",
-                      "Open-source AI assistant for VS Code &amp; JetBrains.",
+                _card(rid, "continue", "#198754", "EXTENSION", "🔧", "Continue.dev",
+                      "Open-source AI assistant for VS Code and JetBrains.",
                       r.config_continue or "",
                       [
-                          "Install <strong>Continue</strong> extension in VS Code / JetBrains Marketplace.",
-                          "Open <code style='%s'>~/.continue/config.json</code> (gear icon in Continue sidebar)." % _CODE_INLINE,
-                          "Merge the JSON above into the <code style='%s'>mcpServers</code> array." % _CODE_INLINE,
-                          "Reload VS Code: <code style='%s'>Ctrl+Shift+P → Developer: Reload Window</code>." % _CODE_INLINE,
+                          "Install <strong>Continue</strong> in VS Code / JetBrains Marketplace.",
+                          "Open <code style='%s'>~/.continue/config.json</code> (gear icon)." % ci,
+                          "Merge JSON into <code style='%s'>mcpServers</code> array." % ci,
+                          "Reload: <code style='%s'>Ctrl+Shift+P → Reload Window</code>." % ci,
                       ]),
-                _card(rid, "zed", "⚡", "Zed Editor",
-                      "High-performance multiplayer editor with native MCP support.",
+                _card(rid, "zed", "#fd7e14", "EDITOR", "⚡", "Zed Editor",
+                      "High-performance editor with native MCP support.",
                       json.dumps({"context_servers": {srv: {
                           "command": {"path": "npx", "args": ["-y", "mcp-remote", f"{endpoint}?key={k}"]},
                           "settings": {},
                       }}}, indent=2),
                       [
-                          "Install Zed from <strong>zed.dev</strong> (free, Mac/Linux/Windows).",
-                          "Open <code style='%s'>~/.config/zed/settings.json</code> (Zed → Settings)." % _CODE_INLINE,
-                          "Merge the JSON above into the <code style='%s'>context_servers</code> key." % _CODE_INLINE,
-                          "Install bridge: <code style='%s'>npm install -g mcp-remote</code>" % _CODE_INLINE,
-                          "Restart Zed. Open Agent Panel → ask about your Odoo data.",
+                          "Install Zed from <strong>zed.dev</strong>.",
+                          "Open <code style='%s'>~/.config/zed/settings.json</code>." % ci,
+                          "Merge JSON into <code style='%s'>context_servers</code> key." % ci,
+                          "Bridge: <code style='%s'>npm install -g mcp-remote</code>" % ci,
+                          "Restart Zed → Agent Panel → ask about Odoo data.",
                       ]),
-                _card(rid, "desktop", "🖥", "Claude Desktop",
-                      "Anthropic's desktop app for Mac &amp; Windows with MCP built-in.",
+                _card(rid, "desktop", "#5b4fcf", "DESKTOP", "🖥", "Claude Desktop",
+                      "Anthropic's desktop app for Mac and Windows with MCP built-in.",
                       r.config_desktop or "",
                       [
                           "Download from <strong>claude.ai/download</strong>. Log in.",
                           "Open Settings → Developer → <strong>Edit Config</strong>.",
-                          "Merge the JSON into <code style='%s'>claude_desktop_config.json</code>." % _CODE_INLINE,
-                          "Restart Claude Desktop. A 🔨 icon shows available Odoo tools.",
+                          "Merge JSON into <code style='%s'>claude_desktop_config.json</code>." % ci,
+                          "Restart. A 🔨 icon confirms Odoo tools are connected.",
                       ]),
-                _card(rid, "gemini", "✨", "Gemini CLI",
+                _card(rid, "gemini", "#0dcaf0", "CLI", "✨", "Gemini CLI",
                       "Google's open-source AI agent for the terminal.",
                       r.config_gemini or "",
                       [
-                          "Install: <code style='%s'>npm install -g @google/gemini-cli</code>" % _CODE_INLINE,
-                          "Authenticate: run <code style='%s'>gemini</code> → follow Google login." % _CODE_INLINE,
-                          "Open or create <code style='%s'>~/.gemini/settings.json</code>." % _CODE_INLINE,
-                          "Paste the JSON above (merge into <code style='%s'>mcpServers</code>)." % _CODE_INLINE,
+                          "Install: <code style='%s'>npm install -g @google/gemini-cli</code>" % ci,
+                          "Authenticate: run <code style='%s'>gemini</code> → Google login." % ci,
+                          "Open <code style='%s'>~/.gemini/settings.json</code>." % ci,
+                          "Merge JSON into <code style='%s'>mcpServers</code>." % ci,
                       ]),
-                _card(rid, "codex", "💻", "Codex CLI (OpenAI)",
+                _card(rid, "codex", "#198754", "CLI", "💻", "Codex CLI",
                       "OpenAI's terminal AI agent — uses your OpenAI API key.",
                       r.config_codex or "",
                       [
-                          "Install: <code style='%s'>npm install -g @openai/codex</code>" % _CODE_INLINE,
-                          "Set key: <code style='%s'>export OPENAI_API_KEY=sk-...</code>" % _CODE_INLINE,
-                          "Create or open <code style='%s'>~/.codex/config.yaml</code> and paste YAML above." % _CODE_INLINE,
-                          "Run <code style='%s'>codex</code>." % _CODE_INLINE,
+                          "Install: <code style='%s'>npm install -g @openai/codex</code>" % ci,
+                          "Set key: <code style='%s'>export OPENAI_API_KEY=sk-...</code>" % ci,
+                          "Open <code style='%s'>~/.codex/config.yaml</code> and paste YAML above." % ci,
+                          "Run: <code style='%s'>codex</code>" % ci,
                       ]),
-                _card(rid, "opencode", "⚙", "OpenCode",
-                      "Open-source terminal AI agent supporting multiple AI providers.",
+                _card(rid, "opencode", "#6c757d", "CLI", "⚙", "OpenCode",
+                      "Open-source terminal AI agent — works with multiple AI providers.",
                       r.config_opencode or "",
                       [
-                          "Install: <code style='%s'>npm install -g opencode-ai</code>" % _CODE_INLINE,
-                          "Create <code style='%s'>opencode.json</code> in project root (or <code style='%s'>~/.config/opencode/opencode.json</code>)." % (_CODE_INLINE, _CODE_INLINE),
-                          "Paste the JSON above and save.",
-                          "Run <code style='%s'>opencode</code>." % _CODE_INLINE,
+                          "Install: <code style='%s'>npm install -g opencode-ai</code>" % ci,
+                          "Create <code style='%s'>opencode.json</code> in project root." % ci,
+                          "Paste JSON above and save.",
+                          "Run: <code style='%s'>opencode</code>" % ci,
                       ]),
-                _card(rid, "chatgpt", "💬", "ChatGPT (Native MCP)",
-                      "ChatGPT.com supports MCP connectors — paste the URL directly, no file config needed.",
+                _card(rid, "chatgpt", "#10a37f", "WEB", "💬", "ChatGPT",
+                      "ChatGPT.com native MCP — paste URL directly, no file config needed.",
                       f"{endpoint}?key={k}",
                       [
-                          "Go to <strong>chatgpt.com</strong> → left sidebar → <strong>Apps</strong> (or Codex icon).",
-                          "Click <strong>New App</strong> → give it a name (e.g. <em>Odoo</em>).",
-                          "Under <strong>Connection</strong> → select <strong>Server URL</strong> tab.",
-                          "Paste the URL above into the Server URL field.",
-                          "Authentication: set to <strong>No Auth</strong> (key is already in the URL).",
-                          "Check <em>\"I understand and want to continue\"</em> → click <strong>Create</strong>.",
-                          "Now ask ChatGPT: <em>\"Show my overdue invoices\"</em>",
+                          "Go to <strong>chatgpt.com</strong> → sidebar → <strong>Apps</strong>.",
+                          "Click <strong>New App</strong> → name it (e.g. <em>Odoo</em>).",
+                          "Connection → <strong>Server URL</strong> tab → paste URL above.",
+                          "Auth: <strong>No Auth</strong> (key is in the URL). Click <strong>Create</strong>.",
+                          "Ask: <em>\"Show my overdue invoices\"</em>",
                       ]),
-                _card(rid, "openai", "🐍", "OpenAI / ChatGPT (Python)",
+                _card(rid, "openai", "#343a40", "PYTHON", "🐍", "OpenAI SDK",
                       "Python bridge — loads Odoo MCP tools into any OpenAI-compatible model.",
                       r.config_openai or "",
                       [
-                          "Install deps: <code style='%s'>pip install openai mcp</code>" % _CODE_INLINE,
-                          "Set key: <code style='%s'>export OPENAI_API_KEY=sk-...</code>" % _CODE_INLINE,
-                          "Copy the script above into <code style='%s'>odoo_ai.py</code> and run it." % _CODE_INLINE,
-                          "Change the <code style='%s'>content</code> string to your actual question." % _CODE_INLINE,
+                          "Install: <code style='%s'>pip install openai mcp</code>" % ci,
+                          "Set key: <code style='%s'>export OPENAI_API_KEY=sk-...</code>" % ci,
+                          "Copy script above into <code style='%s'>odoo_ai.py</code> and run." % ci,
+                          "Edit the <code style='%s'>content</code> string with your question." % ci,
                       ]),
             ]
 
             grid = (
-                "<div style='display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px'>"
+                "<div style='display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px'>"
                 + "".join(cards)
                 + "</div>"
             )
