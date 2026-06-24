@@ -178,19 +178,15 @@
                                 <span class="badge bg-secondary"><t t-esc="len(api_keys)"/> keys</span>
                             </div>
                             <div class="alert alert-info alert-dismissible mb-0 rounded-0 border-0 border-bottom py-2 px-3 small" role="alert">
-                                <i class="fa fa-info-circle me-1"/>
-                                <strong>What do the access levels mean?</strong>
-                                &#160;&#160;
-                                <strong>Read-only</strong> — AI can look up your data but cannot change anything.
-                                &#160;&#160;
-                                <strong>+ Write</strong> — AI can also update existing records (e.g. edit a contact).
-                                &#160;&#160;
-                                <strong>+ Create</strong> — AI can add new records (e.g. create an invoice).
-                                &#160;&#160;
-                                <strong>+ Execute</strong> — AI can trigger actions (e.g. confirm a sale order).
-                                &#160;&#160;
-                                <strong>+ Delete</strong> — AI can permanently remove records. Use with care.
-                                <button type="button" class="btn-close py-2" data-bs-dismiss="alert"/>
+                                <button type="button" class="btn-close float-end" data-bs-dismiss="alert"/>
+                                <div class="fw-semibold mb-1"><i class="fa fa-info-circle me-1"/>What do the access levels mean?</div>
+                                <ul class="mb-0 ps-3">
+                                    <li><strong>Read-only</strong> — AI can look up your data but cannot change anything.</li>
+                                    <li><strong>+ Edit</strong> — AI can also update existing records (e.g. edit a contact's address).</li>
+                                    <li><strong>+ Create</strong> — AI can add new records (e.g. create an invoice or sale order).</li>
+                                    <li><strong>+ Actions</strong> — AI can trigger workflow steps (e.g. confirm an order, post an invoice).</li>
+                                    <li><strong>+ Delete</strong> — AI can permanently remove records. Enable only if needed.</li>
+                                </ul>
                             </div>
                             <div class="card-body p-0">
                                 <t t-if="not api_keys">
