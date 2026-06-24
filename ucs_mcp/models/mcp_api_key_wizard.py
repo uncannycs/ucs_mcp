@@ -185,7 +185,10 @@ class McpApiKeyWizard(models.TransientModel):
                 indent=2,
             )
             r.config_antigravity = json.dumps(
-                {"mcp": {"servers": [{"name": srv, "endpoint": endpoint, "auth": {"type": "bearer", "token": k}}]}},
+                {"context_servers": {srv: {
+                    "command": {"path": "npx", "args": ["-y", "mcp-remote", f"{endpoint}?key={k}"]},
+                    "settings": {},
+                }}},
                 indent=2,
             )
             r.config_desktop = json.dumps(
