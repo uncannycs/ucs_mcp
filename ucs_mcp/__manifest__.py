@@ -2,11 +2,11 @@
 {
     "name": "UCS MCP Server",
     "version": "19.0.1.2.0",
-    "summary": "Expose Odoo to Claude Code / Claude Desktop via the Model Context Protocol",
+    "summary": "Connect Claude Code, ChatGPT, Cursor, Gemini and any AI client to Odoo via MCP",
     "description": """
         MCP (Model Context Protocol) server for Odoo 19.
-        Allows Claude Code and Claude Desktop to query and update Odoo via 23 tools
-        covering generic CRUD, sales, accounting, inventory, HR, GST, and WhatsApp.
+        Exposes 25 tools covering generic CRUD, sales, accounting, inventory, HR, GST, and WhatsApp
+        to Claude Code, Claude Desktop, ChatGPT, Cursor, Continue.dev, Gemini CLI, and more.
     """,
     "author": "Uncanny CS",
     "website": "https://github.com/uncannycs/ucs-mcp",
