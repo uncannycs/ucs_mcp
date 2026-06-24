@@ -312,7 +312,8 @@
 
                                                     <!-- Claude Desktop -->
                                     <div t-attf-id="cfg-#{key.id}-desktop" class="config-panel">
-                                        <div class="code-mini">
+                                        <p style="font-size:.75rem;color:#065f46;font-weight:600;margin-bottom:4px">&#9312; Empty config — paste full block:</p>
+                                        <div class="code-mini" style="margin-bottom:8px">
                                             <pre t-attf-id="code-#{key.id}-desktop">{
   "mcpServers": {
     "odoo": {
@@ -323,7 +324,15 @@
 }</pre>
                                             <button class="copy-btn-sm" t-attf-onclick="copyCode('code-#{key.id}-desktop',this)">&#128203; Copy</button>
                                         </div>
-                                        <p class="lost-key-note">Replace <code>[YOUR_KEY]</code>. Requires Node.js installed (<code>node -v</code> to check).</p>
+                                        <p style="font-size:.75rem;color:#92400e;font-weight:600;margin-bottom:4px">&#9313; Already has other servers — add only this inside <code>mcpServers&#123;&#125;</code>, comma after previous entry:</p>
+                                        <div class="code-mini">
+                                            <pre t-attf-id="code-#{key.id}-desktop-entry">    "odoo": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "<t t-esc="server_url"/>/mcp/v1?key=[YOUR_KEY]"]
+    }</pre>
+                                            <button class="copy-btn-sm" t-attf-onclick="copyCode('code-#{key.id}-desktop-entry',this)">&#128203; Copy</button>
+                                        </div>
+                                        <p class="lost-key-note" style="margin-top:6px">Replace <code>[YOUR_KEY]</code>. No trailing comma on last entry. Requires Node.js (<code>node -v</code>).</p>
                                     </div>
 
                                     <!-- Gemini CLI -->
@@ -583,8 +592,13 @@ response = client.chat.completions.create(
                 <!-- Claude Desktop -->
                 <div class="mcp-card">
                     <h3>&#129302;&#160; Claude Desktop</h3>
-                    <p class="hint">Anthropic's desktop app for Mac and Windows. Uses <code>mcp-remote</code> (stdio ↔ HTTP bridge) — requires Node.js.</p>
-                    <div class="code-wrap">
+                    <p class="hint">Uses <code>mcp-remote</code> as a stdio bridge. Requires Node.js. Two scenarios below — pick the one that matches your current config file.</p>
+
+                    <!-- Scenario A: fresh / empty config -->
+                    <div style="margin-bottom:6px;font-size:12px;font-weight:700;color:#065f46;background:#d1fae5;padding:4px 10px;border-radius:4px;display:inline-block">
+                        &#9312; File is empty or has only <code style="background:rgba(0,0,0,.08);padding:1px 4px;border-radius:3px">{}</code> — paste this entire block:
+                    </div>
+                    <div class="code-wrap" style="margin-bottom:12px">
                         <pre class="code-block" id="desktop-config">{
   "mcpServers": {
     "<t t-esc="mcp_server_name or 'odoo'"/>": {
@@ -595,16 +609,37 @@ response = client.chat.completions.create(
 }</pre>
                         <button class="copy-btn" onclick="copyEl('desktop-config',this)">&#128203; Copy</button>
                     </div>
+
+                    <!-- Scenario B: existing mcpServers -->
+                    <div style="margin-bottom:6px;font-size:12px;font-weight:700;color:#92400e;background:#fef3c7;padding:4px 10px;border-radius:4px;display:inline-block">
+                        &#9313; File already has other servers inside <code style="background:rgba(0,0,0,.08);padding:1px 4px;border-radius:3px">"mcpServers": { ... }</code> — add only this entry inside the braces, with a comma after the previous entry:
+                    </div>
+                    <div class="code-wrap" style="margin-bottom:12px">
+                        <pre class="code-block" id="desktop-config-merge">{
+  "mcpServers": {
+    "existing-server": { "..." },    &#8592; your existing entry
+    "<t t-esc="mcp_server_name or 'odoo'"/>": {             &#8592; add from here
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "<t t-esc="mcp_endpoint"/>?key=<t t-esc="plain_key"/>"]
+    }                                &#8592; to here (no comma on last entry)
+  }
+}</pre>
+                        <button class="copy-btn" onclick="copyEl('desktop-config-merge',this)">&#128203; Copy entry</button>
+                    </div>
+
                     <div class="setup-steps">
                         <div class="steps-title">&#128196; Setup Steps</div>
                         <ol>
-                            <li>Confirm Node.js is installed: <code>node -v</code> in terminal. If missing, install from <strong>nodejs.org</strong>.</li>
-                            <li>Download Claude Desktop from <strong>claude.ai/download</strong>. Install and log in.</li>
-                            <li>Open: <strong>Settings</strong> &#8594; <strong>Developer</strong> &#8594; <strong>Edit Config</strong>.</li>
-                            <li>Paste the JSON above, merging into the <code>mcpServers</code> key.</li>
-                            <li>Save and <strong>restart Claude Desktop</strong> completely.</li>
-                            <li>In a new chat you'll see a hammer &#128296; icon — click it to see all Odoo tools.</li>
+                            <li>Confirm Node.js installed: run <code>node -v</code> in terminal. Missing? Download from <strong>nodejs.org</strong>.</li>
+                            <li>Open Claude Desktop &#8594; <strong>Settings</strong> (top-right) &#8594; <strong>Developer</strong> &#8594; <strong>Edit Config</strong>.</li>
+                            <li>Use <strong>Scenario &#9312;</strong> if the file is empty. Use <strong>Scenario &#9313;</strong> if it already has entries — add only the highlighted entry and put a comma after the entry above it.</li>
+                            <li>Save the file. <strong>Fully quit and reopen Claude Desktop</strong> (Cmd+Q / Alt+F4, then relaunch).</li>
+                            <li>Open a new chat — you'll see a hammer &#128296; icon. Click it to confirm Odoo tools appear.</li>
+                            <li>Ask: <em>"Show my top 5 customers in Odoo"</em></li>
                         </ol>
+                        <div style="margin-top:8px;padding:6px 10px;background:#fee2e2;border-radius:5px;font-size:11px;color:#991b1b">
+                            &#10006; Common mistake: putting a comma after the <strong>last</strong> entry inside mcpServers. JSON does not allow trailing commas — this causes a parse error.
+                        </div>
                     </div>
                 </div>
 
