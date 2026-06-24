@@ -4,8 +4,7 @@
     <template id="portal_mcp_connect" name="MCP Connect Portal">
         <t t-call="web.layout">
             <t t-set="head">
-                <link rel="stylesheet" href="/web/static/lib/bootstrap/css/bootstrap.css"/>
-                <link rel="stylesheet" href="/web/static/src/legacy/scss/fontawesome/css/font-awesome.css"/>
+                <t t-call-assets="web.assets_frontend" t-js="false"/>
                 <style>
                     body { background: #f8f9fa; }
                     .mcp-nav { background: #fff; border-bottom: 1px solid #dee2e6; padding: 10px 0; margin-bottom: 0; }
@@ -434,8 +433,7 @@ response = client.chat.completions.create(
     <template id="portal_mcp_key_created" name="MCP Key Created">
         <t t-call="web.layout">
             <t t-set="head">
-                <link rel="stylesheet" href="/web/static/lib/bootstrap/css/bootstrap.css"/>
-                <link rel="stylesheet" href="/web/static/src/legacy/scss/fontawesome/css/font-awesome.css"/>
+                <t t-call-assets="web.assets_frontend" t-js="false"/>
                 <style>
                     body { background: #f8f9fa; }
                     .mcp-nav { background: #fff; border-bottom: 1px solid #dee2e6; padding: 10px 0; }
