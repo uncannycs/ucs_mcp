@@ -243,16 +243,31 @@
                                 <!-- Config panel (collapsed by default) -->
                                 <div t-attf-id="cfg-#{key.id}" class="key-config">
                                     <div class="config-tabs">
-                                        <span class="config-tab active" t-attf-onclick="switchTab('cfg-#{key.id}','claude')">&#129302; Claude Code</span>
+                                        <span class="config-tab active" t-attf-onclick="switchTab('cfg-#{key.id}','chatgpt')" style="background:#10a37f;border-color:#10a37f;color:#fff">&#128172; ChatGPT</span>
+                                        <span class="config-tab" t-attf-onclick="switchTab('cfg-#{key.id}','claude')">&#129302; Claude Code</span>
                                         <span class="config-tab" t-attf-onclick="switchTab('cfg-#{key.id}','cursor')">&#9654; Cursor</span>
                                         <span class="config-tab" t-attf-onclick="switchTab('cfg-#{key.id}','continue')">&#128296; Continue.dev</span>
                                         <span class="config-tab" t-attf-onclick="switchTab('cfg-#{key.id}','desktop')">&#129302; Desktop</span>
                                         <span class="config-tab" t-attf-onclick="switchTab('cfg-#{key.id}','gemini')">&#129418; Gemini</span>
-                                        <span class="config-tab" t-attf-onclick="switchTab('cfg-#{key.id}','openai')">&#129302; OpenAI</span>
+                                        <span class="config-tab" t-attf-onclick="switchTab('cfg-#{key.id}','openai')">&#128013; OpenAI</span>
+                                    </div>
+
+                                    <!-- ChatGPT -->
+                                    <div t-attf-id="cfg-#{key.id}-chatgpt" class="config-panel active">
+                                        <div class="code-mini">
+                                            <pre t-attf-id="code-#{key.id}-chatgpt"><t t-esc="server_url"/>/mcp/v1?key=[YOUR_KEY]</pre>
+                                            <button class="copy-btn-sm" t-attf-onclick="copyCode('code-#{key.id}-chatgpt',this)">&#128203; Copy</button>
+                                        </div>
+                                        <ol style="font-size:.78rem;color:#374151;line-height:1.6;padding-left:1.1rem;margin:.5rem 0 0">
+                                            <li>Go to <strong>chatgpt.com</strong> &#8594; sidebar &#8594; <strong>Apps</strong></li>
+                                            <li>Click <strong>New App</strong> &#8594; Connection &#8594; <strong>Server URL</strong> tab</li>
+                                            <li>Paste the URL above. Auth: <strong>No Auth</strong>. Click <strong>Create</strong>.</li>
+                                        </ol>
+                                        <p class="lost-key-note" style="margin-top:.4rem">Replace <code>[YOUR_KEY]</code>. Requires public URL (Odoo.sh / ngrok — not localhost).</p>
                                     </div>
 
                                     <!-- Claude Code -->
-                                    <div t-attf-id="cfg-#{key.id}-claude" class="config-panel active">
+                                    <div t-attf-id="cfg-#{key.id}-claude" class="config-panel">
                                         <div class="code-mini">
                                             <pre t-attf-id="code-#{key.id}-claude">claude mcp add --transport http [SERVER-NAME] "<t t-esc="server_url"/>/mcp/v1?key=[YOUR_KEY]"</pre>
                                             <button class="copy-btn-sm" t-attf-onclick="copyCode('code-#{key.id}-claude',this)">&#128203; Copy</button>
@@ -469,6 +484,30 @@ response = client.chat.completions.create(
                     </div>
                 </div>
 
+                <!-- ChatGPT Native MCP — FIRST after key, zero-config -->
+                <div class="mcp-card" style="border-left:4px solid #10a37f">
+                    <h3 style="color:#10a37f">&#128172;&#160; ChatGPT — Paste URL, Done</h3>
+                    <p class="hint">No file to edit. Open ChatGPT → Apps → New App → paste URL below → Auth: No Auth → Create.</p>
+                    <div class="code-wrap">
+                        <pre class="code-block" id="chatgpt-url"><t t-esc="mcp_endpoint"/>?key=<t t-esc="plain_key"/></pre>
+                        <button class="copy-btn" onclick="copyEl('chatgpt-url',this)">&#128203; Copy</button>
+                    </div>
+                    <div class="setup-steps">
+                        <div class="steps-title">&#128196; Setup Steps</div>
+                        <ol>
+                            <li>Go to <strong>chatgpt.com</strong> &#8594; left sidebar &#8594; <strong>Apps</strong>.</li>
+                            <li>Click <strong>New App</strong> &#8594; give it a name like <em>Odoo</em>.</li>
+                            <li>Under <strong>Connection</strong> &#8594; select the <strong>Server URL</strong> tab.</li>
+                            <li>Paste the URL above. Authentication &#8594; <strong>No Auth</strong> (key is in the URL).</li>
+                            <li>Check <em>"I understand and want to continue"</em> &#8594; click <strong>Create</strong>.</li>
+                            <li>Ask ChatGPT: <em>"Show my overdue invoices"</em></li>
+                        </ol>
+                        <div style="margin-top:8px;padding:6px 8px;background:#d1fae5;border-radius:5px;font-size:11px;color:#065f46">
+                            &#9989; This URL is ready to paste — your API key is already embedded. Works on Odoo.sh (public URL).
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Claude Code -->
                 <div class="mcp-card">
                     <h3>&#129302;&#160; Claude Code</h3>
@@ -651,30 +690,6 @@ mcp_servers:
                     </div>
                 </div>
 
-                <!-- ChatGPT Native MCP -->
-                <div class="mcp-card">
-                    <h3>&#128172;&#160; ChatGPT (Native MCP)</h3>
-                    <p class="hint">ChatGPT.com supports MCP connectors directly — just paste the URL below. No file config needed. Requires a public URL (ngrok, Odoo.sh, or cloud server).</p>
-                    <div class="code-wrap">
-                        <pre class="code-block" id="chatgpt-url"><t t-esc="mcp_endpoint"/>?key=<t t-esc="plain_key"/></pre>
-                        <button class="copy-btn" onclick="copyEl('chatgpt-url',this)">&#128203; Copy</button>
-                    </div>
-                    <div class="setup-steps">
-                        <div class="steps-title">&#128196; Setup Steps</div>
-                        <ol>
-                            <li>Go to <strong>chatgpt.com</strong> → left sidebar → <strong>Apps</strong> (or the Codex icon).</li>
-                            <li>Click <strong>New App</strong> → give it a name like <em>Odoo</em>.</li>
-                            <li>Under <strong>Connection</strong> → select the <strong>Server URL</strong> tab.</li>
-                            <li>Paste the URL above into the Server URL field.</li>
-                            <li>Authentication → set to <strong>No Auth</strong> (the API key is already in the URL).</li>
-                            <li>Check <em>"I understand and want to continue"</em> → click <strong>Create</strong>.</li>
-                            <li>Ask ChatGPT: <em>"Show my overdue invoices"</em> — it will use your Odoo data.</li>
-                        </ol>
-                        <div style="margin-top:8px;padding:6px 8px;background:#fef3c7;border-radius:5px;font-size:11px;color:#92400e">
-                            &#9888; ChatGPT's MCP connector only works with <strong>publicly reachable URLs</strong> (not localhost). Use ngrok, Odoo.sh, or a cloud server.
-                        </div>
-                    </div>
-                </div>
 
                 <!-- OpenAI Python -->
                 <div class="mcp-card">
