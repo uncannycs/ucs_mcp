@@ -177,6 +177,21 @@
                                 <strong><i class="fa fa-key me-1"/>Your API Keys</strong>
                                 <span class="badge bg-secondary"><t t-esc="len(api_keys)"/> keys</span>
                             </div>
+                            <div class="alert alert-info alert-dismissible mb-0 rounded-0 border-0 border-bottom py-2 px-3 small" role="alert">
+                                <i class="fa fa-info-circle me-1"/>
+                                <strong>What do the access levels mean?</strong>
+                                &#160;&#160;
+                                <strong>Read-only</strong> — AI can look up your data but cannot change anything.
+                                &#160;&#160;
+                                <strong>+ Write</strong> — AI can also update existing records (e.g. edit a contact).
+                                &#160;&#160;
+                                <strong>+ Create</strong> — AI can add new records (e.g. create an invoice).
+                                &#160;&#160;
+                                <strong>+ Execute</strong> — AI can trigger actions (e.g. confirm a sale order).
+                                &#160;&#160;
+                                <strong>+ Delete</strong> — AI can permanently remove records. Use with care.
+                                <button type="button" class="btn-close py-2" data-bs-dismiss="alert"/>
+                            </div>
                             <div class="card-body p-0">
                                 <t t-if="not api_keys">
                                     <div class="text-center text-muted py-4">
@@ -191,16 +206,27 @@
                                                 <div class="fw-semibold"><t t-esc="key.name"/></div>
                                                 <div class="text-muted small mt-1">
                                                     <code class="bg-light px-1 rounded border"><t t-esc="key.key_prefix"/>...</code>
-                                                    &#160; Rate: <t t-esc="key.rate_limit or 'unlimited'"/>/hr
                                                     &#160; Used: <t t-esc="key.use_count"/>×
-                                                    <t t-if="key.last_used">&#160; Last: <t t-esc="key.last_used"/></t>
+                                                    <t t-if="key.last_used">&#160; Last used: <t t-esc="key.last_used"/></t>
                                                 </div>
-                                                <div class="mt-1 d-flex flex-wrap gap-1">
-                                                    <span class="badge bg-primary bg-opacity-10 text-primary">Read</span>
-                                                    <t t-if="key.perm_write"><span class="badge bg-warning bg-opacity-10 text-warning">Write</span></t>
-                                                    <t t-if="key.perm_create"><span class="badge bg-success bg-opacity-10 text-success">Create</span></t>
-                                                    <t t-if="key.perm_delete"><span class="badge bg-danger bg-opacity-10 text-danger">Delete</span></t>
-                                                    <t t-if="key.perm_execute"><span class="badge bg-secondary bg-opacity-10 text-secondary">Execute</span></t>
+                                                <div class="mt-1 small">
+                                                    <i class="fa fa-shield me-1 text-muted"/>
+                                                    <t t-if="not key.perm_write and not key.perm_create and not key.perm_delete and not key.perm_execute">
+                                                        <span class="text-success fw-semibold">Read-only</span>
+                                                        <span class="text-muted"> — AI can view your data, cannot make any changes</span>
+                                                    </t>
+                                                    <t t-elif="key.perm_write and key.perm_create and key.perm_delete and key.perm_execute">
+                                                        <span class="text-danger fw-semibold">Full access</span>
+                                                        <span class="text-muted"> — AI can view, create, edit and delete records</span>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <span class="fw-semibold">Read
+                                                            <t t-if="key.perm_write"> + Edit</t>
+                                                            <t t-if="key.perm_create"> + Create</t>
+                                                            <t t-if="key.perm_execute"> + Actions</t>
+                                                            <t t-if="key.perm_delete"> + Delete</t>
+                                                        </span>
+                                                    </t>
                                                 </div>
                                             </div>
                                             <div class="d-flex gap-2 flex-wrap">
