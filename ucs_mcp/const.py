@@ -13,6 +13,8 @@ SYSTEM_BLOCKED_MODELS = frozenset([
     "mail.template",
     "ir.actions.server",
     "ir.cron",
+    "mcp.api.key",
+    "mcp.audit.log",
 ])
 
 DANGEROUS_METHODS = frozenset([

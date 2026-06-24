@@ -71,4 +71,8 @@ class CreateSaleOrderTool(BaseMcpTool):
 
         order = self.env["sale.order"].create(vals)
         _logger.info("MCP create_sale_order: id=%d name=%s", order.id, order.name)
+        self._post_chatter(
+            "sale.order", order.id,
+            "&#129302; <b>AI Assistant</b> created this sale order via MCP key <i>%s</i>." % self.api_key.name,
+        )
         return self._serialize({"id": order.id, "name": order.name, "state": order.state})

@@ -67,4 +67,8 @@ class CreateStockMoveTool(BaseMcpTool):
 
         picking = self.env["stock.picking"].create(vals)
         _logger.info("MCP create_stock_move: picking=%d product=%d qty=%s", picking.id, product_id, qty)
+        self._post_chatter(
+            "stock.picking", picking.id,
+            "&#129302; <b>AI Assistant</b> created this transfer via MCP key <i>%s</i>." % self.api_key.name,
+        )
         return self._serialize({"id": picking.id, "name": picking.name, "state": picking.state})

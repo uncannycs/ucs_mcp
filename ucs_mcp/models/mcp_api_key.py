@@ -4,6 +4,7 @@ import logging
 import secrets
 
 from odoo import _, api, fields, models
+from odoo.addons.base.models.res_users import check_identity
 from odoo.exceptions import AccessError, UserError
 
 from ..const import (
@@ -298,6 +299,7 @@ class McpApiKey(models.Model):
                 + block("Claude Desktop — claude_desktop_config.json:", desktop_cfg)
             )
 
+    @check_identity
     def action_regenerate_key(self):
         """Open the wizard pre-filled with this key's settings for regeneration."""
         self.ensure_one()

@@ -46,4 +46,8 @@ class CreateLeaveRequestTool(BaseMcpTool):
 
         leave = self.env["hr.leave"].create(vals)
         _logger.info("MCP create_leave_request: id=%d employee=%d", leave.id, vals["employee_id"])
+        self._post_chatter(
+            "hr.leave", leave.id,
+            "&#129302; <b>AI Assistant</b> submitted this leave request via MCP key <i>%s</i>." % self.api_key.name,
+        )
         return self._serialize({"id": leave.id, "state": leave.state})

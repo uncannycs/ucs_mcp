@@ -37,4 +37,8 @@ class PostInvoiceTool(BaseMcpTool):
             raise UserError("Invoice %d is not in draft state (current: %s)." % (invoice_id, invoice.state))
         invoice.action_post()
         _logger.info("MCP post_invoice: id=%d", invoice_id)
+        self._post_chatter(
+            "account.move", invoice_id,
+            "&#129302; <b>AI Assistant</b> posted this invoice via MCP key <i>%s</i>." % self.api_key.name,
+        )
         return self._serialize({"id": invoice_id, "name": invoice.name, "state": invoice.state, "amount_total": invoice.amount_total})

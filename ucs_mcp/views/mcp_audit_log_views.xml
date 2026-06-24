@@ -59,11 +59,47 @@
         <field name="code">model._cron_purge_old_logs()</field>
     </record>
 
+    <record id="view_mcp_audit_log_graph" model="ir.ui.view">
+        <field name="name">mcp.audit.log.graph</field>
+        <field name="model">mcp.audit.log</field>
+        <field name="arch" type="xml">
+            <graph string="MCP Tool Usage" type="bar" sample="1">
+                <field name="tool_name" type="row"/>
+                <field name="status" type="col"/>
+                <field name="duration_ms" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_mcp_audit_log_pivot" model="ir.ui.view">
+        <field name="name">mcp.audit.log.pivot</field>
+        <field name="model">mcp.audit.log</field>
+        <field name="arch" type="xml">
+            <pivot string="MCP Usage Analysis" sample="1">
+                <field name="tool_name" type="row"/>
+                <field name="status" type="col"/>
+                <field name="duration_ms" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
     <record id="action_mcp_audit_log" model="ir.actions.act_window">
         <field name="name">MCP Audit Log</field>
         <field name="res_model">mcp.audit.log</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">graph,pivot,list,form</field>
+        <field name="context">{"search_default_group_tool": 1}</field>
     </record>
+
+    <record id="action_mcp_audit_dashboard" model="ir.actions.act_window">
+        <field name="name">MCP Dashboard</field>
+        <field name="res_model">mcp.audit.log</field>
+        <field name="view_mode">graph,pivot</field>
+        <field name="view_id" ref="view_mcp_audit_log_graph"/>
+    </record>
+
+    <menuitem id="menu_mcp_dashboard" name="Dashboard" parent="ucs_mcp.menu_mcp_root"
+              action="action_mcp_audit_dashboard" sequence="5"
+              groups="ucs_mcp.group_mcp_admin"/>
 
     <menuitem id="menu_mcp_audit_log" name="Audit Log" parent="ucs_mcp.menu_mcp_root"
               action="action_mcp_audit_log" sequence="20"

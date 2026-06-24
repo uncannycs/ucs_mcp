@@ -37,4 +37,8 @@ class ConfirmSaleOrderTool(BaseMcpTool):
             raise UserError("Sale order %d is not in draft state (current: %s)." % (order_id, order.state))
         order.action_confirm()
         _logger.info("MCP confirm_sale_order: id=%d", order_id)
+        self._post_chatter(
+            "sale.order", order_id,
+            "&#129302; <b>AI Assistant</b> confirmed this sale order via MCP key <i>%s</i>." % self.api_key.name,
+        )
         return self._serialize({"id": order_id, "name": order.name, "state": order.state})

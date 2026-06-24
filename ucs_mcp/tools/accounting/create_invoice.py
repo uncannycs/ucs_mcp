@@ -76,4 +76,8 @@ class CreateInvoiceTool(BaseMcpTool):
 
         invoice = self.env["account.move"].create(vals)
         _logger.info("MCP create_invoice: id=%d name=%s", invoice.id, invoice.name)
+        self._post_chatter(
+            "account.move", invoice.id,
+            "&#129302; <b>AI Assistant</b> created this invoice via MCP key <i>%s</i>." % self.api_key.name,
+        )
         return self._serialize({"id": invoice.id, "name": invoice.name, "state": invoice.state})

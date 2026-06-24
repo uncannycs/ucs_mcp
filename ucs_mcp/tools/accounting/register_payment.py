@@ -53,6 +53,10 @@ class RegisterPaymentTool(BaseMcpTool):
         action = wizard.action_create_payments()
         payment_ids = action.get("domain", [["id", "in", []]])[0][2] if isinstance(action, dict) else []
         _logger.info("MCP register_payment: invoice=%d payment_ids=%s", invoice_id, payment_ids)
+        self._post_chatter(
+            "account.move", invoice_id,
+            "&#129302; <b>AI Assistant</b> registered payment via MCP key <i>%s</i>." % self.api_key.name,
+        )
         return self._serialize({
             "invoice_id": invoice_id,
             "payment_ids": payment_ids,
