@@ -310,22 +310,20 @@
                                         <p class="lost-key-note">Merge into <code>~/.continue/config.json</code>. Replace <code>[YOUR_KEY]</code> and <code>[SERVER-NAME]</code>.</p>
                                     </div>
 
-                                    <!-- Claude Desktop -->
+                                                    <!-- Claude Desktop -->
                                     <div t-attf-id="cfg-#{key.id}-desktop" class="config-panel">
                                         <div class="code-mini">
                                             <pre t-attf-id="code-#{key.id}-desktop">{
   "mcpServers": {
     "odoo": {
-      "command": "curl",
-      "args": ["-s","-X","POST","<t t-esc="server_url"/>/mcp/v1",
-        "-H","Authorization: Bearer [YOUR_KEY]",
-        "-H","Content-Type: application/json","-d","@-"]
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "<t t-esc="server_url"/>/mcp/v1?key=[YOUR_KEY]"]
     }
   }
 }</pre>
                                             <button class="copy-btn-sm" t-attf-onclick="copyCode('code-#{key.id}-desktop',this)">&#128203; Copy</button>
                                         </div>
-                                        <p class="lost-key-note">Replace <code>[YOUR_KEY]</code>.</p>
+                                        <p class="lost-key-note">Replace <code>[YOUR_KEY]</code>. Requires Node.js installed (<code>node -v</code> to check).</p>
                                     </div>
 
                                     <!-- Gemini CLI -->
@@ -585,15 +583,13 @@ response = client.chat.completions.create(
                 <!-- Claude Desktop -->
                 <div class="mcp-card">
                     <h3>&#129302;&#160; Claude Desktop</h3>
-                    <p class="hint">Anthropic's desktop app for Mac and Windows. MCP tools are built-in — no CLI needed.</p>
+                    <p class="hint">Anthropic's desktop app for Mac and Windows. Uses <code>mcp-remote</code> (stdio ↔ HTTP bridge) — requires Node.js.</p>
                     <div class="code-wrap">
                         <pre class="code-block" id="desktop-config">{
   "mcpServers": {
     "<t t-esc="mcp_server_name or 'odoo'"/>": {
-      "command": "curl",
-      "args": ["-s","-X","POST","<t t-esc="mcp_endpoint"/>",
-        "-H","Authorization: Bearer <t t-esc="plain_key"/>",
-        "-H","Content-Type: application/json","-d","@-"]
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "<t t-esc="mcp_endpoint"/>?key=<t t-esc="plain_key"/>"]
     }
   }
 }</pre>
@@ -602,11 +598,12 @@ response = client.chat.completions.create(
                     <div class="setup-steps">
                         <div class="steps-title">&#128196; Setup Steps</div>
                         <ol>
+                            <li>Confirm Node.js is installed: <code>node -v</code> in terminal. If missing, install from <strong>nodejs.org</strong>.</li>
                             <li>Download Claude Desktop from <strong>claude.ai/download</strong>. Install and log in.</li>
-                            <li>Open: <strong>Settings</strong> (top-right menu) &#8594; <strong>Developer</strong> &#8594; <strong>Edit Config</strong>.</li>
+                            <li>Open: <strong>Settings</strong> &#8594; <strong>Developer</strong> &#8594; <strong>Edit Config</strong>.</li>
                             <li>Paste the JSON above, merging into the <code>mcpServers</code> key.</li>
                             <li>Save and <strong>restart Claude Desktop</strong> completely.</li>
-                            <li>In a new chat you'll see a hammer &#128296; icon — click it to see all Odoo tools. Ask: <em>"Show me overdue invoices"</em></li>
+                            <li>In a new chat you'll see a hammer &#128296; icon — click it to see all Odoo tools.</li>
                         </ol>
                     </div>
                 </div>

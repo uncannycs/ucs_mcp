@@ -284,10 +284,8 @@ class McpApiKey(models.Model):
             )
             desktop_cfg = _json.dumps(
                 {"mcpServers": {"odoo": {
-                    "command": "curl",
-                    "args": ["-s", "-X", "POST", endpoint,
-                             "-H", "Authorization: Bearer [YOUR_KEY]",
-                             "-H", "Content-Type: application/json", "-d", "@-"],
+                    "command": "npx",
+                    "args": ["-y", "mcp-remote", f"{endpoint}?key=[YOUR_KEY]"],
                 }}},
                 indent=2,
             )

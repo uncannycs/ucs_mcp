@@ -190,10 +190,8 @@ class McpApiKeyWizard(models.TransientModel):
             )
             r.config_desktop = json.dumps(
                 {"mcpServers": {srv: {
-                    "command": "curl",
-                    "args": ["-s", "-X", "POST", endpoint,
-                             "-H", f"Authorization: Bearer {k}",
-                             "-H", "Content-Type: application/json", "-d", "@-"],
+                    "command": "npx",
+                    "args": ["-y", "mcp-remote", f"{endpoint}?key={k}"],
                 }}},
                 indent=2,
             )
@@ -291,9 +289,10 @@ class McpApiKeyWizard(models.TransientModel):
                           "Restart Zed → Agent Panel → ask about Odoo data.",
                       ]),
                 _card(rid, "desktop", "#5b4fcf", "DESKTOP", "🖥", "Claude Desktop",
-                      "Anthropic's desktop app for Mac and Windows with MCP built-in.",
+                      "Anthropic's desktop app — uses mcp-remote (stdio↔HTTP bridge). Requires Node.js.",
                       r.config_desktop or "",
                       [
+                          "Install Node.js if missing: <code style='%s'>node -v</code> to check." % ci,
                           "Download from <strong>claude.ai/download</strong>. Log in.",
                           "Open Settings → Developer → <strong>Edit Config</strong>.",
                           "Merge JSON into <code style='%s'>claude_desktop_config.json</code>." % ci,
