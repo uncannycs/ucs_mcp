@@ -1,7 +1,7 @@
 # License LGPL-3 or later (https://www.gnu.org/licenses/lgpl).
 {
     "name": "UCS MCP Server",
-    "version": "19.0.1.2.0",
+    "version": "19.0.1.3.0",
     "summary": "Connect Claude Code, ChatGPT, Cursor, Gemini and any AI client to Odoo via MCP",
     "description": """
         MCP (Model Context Protocol) server for Odoo 19.
