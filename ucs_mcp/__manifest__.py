@@ -1,7 +1,7 @@
 # License LGPL-3 or later (https://www.gnu.org/licenses/lgpl).
 {
     "name": "UCS MCP Server",
-    "version": "19.0.1.1.0",
+    "version": "19.0.1.2.0",
     "summary": "Expose Odoo to Claude Code / Claude Desktop via the Model Context Protocol",
     "description": """
         MCP (Model Context Protocol) server for Odoo 19.
