@@ -194,7 +194,6 @@ class McpApiKeyWizard(models.TransientModel):
             )
             r.config_desktop = json.dumps(
                 {"mcpServers": {srv: {
-                    "type": "http",
                     "url": endpoint,
                     "headers": {"Authorization": f"Bearer {k}"},
                 }}},
