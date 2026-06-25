@@ -208,8 +208,11 @@ class McpController(http.Controller):
             "== Continue.dev (~/.continue/config.json) ==",
             wizard.config_continue or "",
             "",
-            "== Claude Desktop (claude_desktop_config.json) ==",
+            "== Claude Desktop — HTTP (claude_desktop_config.json, no Node needed) ==",
             wizard.config_desktop or "",
+            "",
+            "== Claude Desktop — npx (claude_desktop_config.json, requires Node.js) ==",
+            wizard.config_desktop_npx or "",
         ]
         content = "\n".join(lines)
         return Response(

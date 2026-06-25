@@ -150,6 +150,7 @@ class McpApiKeyWizard(models.TransientModel):
     config_continue = fields.Text(compute="_compute_configs")
     config_antigravity = fields.Text(compute="_compute_configs")
     config_desktop = fields.Text(compute="_compute_configs")
+    config_desktop_npx = fields.Text(compute="_compute_configs")
     config_gemini = fields.Text(compute="_compute_configs")
     config_codex = fields.Text(compute="_compute_configs")
     config_opencode = fields.Text(compute="_compute_configs")
@@ -193,8 +194,16 @@ class McpApiKeyWizard(models.TransientModel):
             )
             r.config_desktop = json.dumps(
                 {"mcpServers": {srv: {
+                    "type": "http",
+                    "url": endpoint,
+                    "headers": {"Authorization": f"Bearer {k}"},
+                }}},
+                indent=2,
+            )
+            r.config_desktop_npx = json.dumps(
+                {"mcpServers": {srv: {
                     "command": "npx",
-                    "args": ["-y", "mcp-remote", f"{endpoint}?key={k}"],
+                    "args": ["-y", "mcp-remote", endpoint, "--header", f"Authorization: Bearer {k}"],
                 }}},
                 indent=2,
             )
@@ -237,7 +246,7 @@ class McpApiKeyWizard(models.TransientModel):
 
     @api.depends("mcp_endpoint", "plain_key", "mcp_server_name",
                  "config_claude", "config_cursor", "config_continue",
-                 "config_desktop", "config_gemini", "config_codex",
+                 "config_desktop", "config_desktop_npx", "config_gemini", "config_codex",
                  "config_opencode", "config_openai")
     def _compute_step2_html(self):
         for r in self:
@@ -291,9 +300,19 @@ class McpApiKeyWizard(models.TransientModel):
                           "Bridge: <code style='%s'>npm install -g mcp-remote</code>" % ci,
                           "Restart Zed → Agent Panel → ask about Odoo data.",
                       ]),
-                _card(rid, "desktop", "#5b4fcf", "DESKTOP", "🖥", "Claude Desktop",
-                      "Requires Node.js. ① Empty config: paste full block. ② Has other servers: add only the entry inside mcpServers{}, comma after previous.",
+                _card(rid, "desktop-http", "#5b4fcf", "DESKTOP", "🖥", "Claude Desktop — HTTP",
+                      "No Node.js needed. Works on Mac, Windows, Linux. Recommended.",
                       r.config_desktop or "",
+                      [
+                          "Settings → Developer → <strong>Edit Config</strong>.",
+                          "<strong>If file is empty</strong>: paste the full JSON above.",
+                          "<strong>If file has other servers</strong>: add only the inner entry inside <code style='%s'>mcpServers{}</code> with a comma after the previous entry." % ci,
+                          "No trailing comma on the last entry — JSON parse error otherwise.",
+                          "Fully quit &amp; reopen Claude Desktop. Hammer 🔨 icon = connected.",
+                      ]),
+                _card(rid, "desktop-npx", "#5b4fcf", "DESKTOP", "🖥", "Claude Desktop — npx",
+                      "Uses mcp-remote stdio bridge. Requires Node.js installed.",
+                      r.config_desktop_npx or "",
                       [
                           "Check Node.js: <code style='%s'>node -v</code>. Install from nodejs.org if missing." % ci,
                           "Settings → Developer → <strong>Edit Config</strong>.",
